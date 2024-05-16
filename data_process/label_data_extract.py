@@ -1,8 +1,8 @@
 import subprocess
 import json
-print("help")
+
 # Opening JSON file
-f = open('project-9-at-2024-05-10-14-08-8629092e.json')
+f = open('../data/result.json')
  
 # returns JSON object as 
 # a dictionary
@@ -10,9 +10,27 @@ data = json.load(f)
  
 # Iterating through the json
 # list
-print(data.keys())
-# for i in data['emp_details']:
-#     print(i)
+# print(data[0].keys())
+# dict_keys(['id', 'annotations', 'drafts', 'predictions', 'data', 'meta', 'created_at', 'updated_at', 'inner_id', 'total_annotations', 'cancelled_annotations', 
+#           'total_predictions', 'comment_count', 'unresolved_comment_count', 'last_comment_updated_at', 'project', 'updated_by', 'comment_authors'])
+categories = data['categories']
+
+print(len(data['annotations']))
+
+mn_cnt = 0
+apop_cnt = 0
+nuc_cnt = 0
+div_nuc_cnt = 0
+for i in data['annotations']:
+    if i["category_id"] == 7:
+        mn_cnt += 1
+    elif i["category_id"] == 6:
+        apop_cnt += 1
+    elif i["category_id"] == 5:
+        nuc_cnt += 1
+    elif i["category_id"] == 4:
+        div_nuc_cnt += 1
+print(f"nuc # is {nuc_cnt}, mn # is {mn_cnt}, apop # is {apop_cnt}, dividing cell # is {div_nuc_cnt}")
  
 # Closing file
 f.close()
