@@ -6,8 +6,8 @@ def test(dataloader, model, loss_fn, device):
     model.eval()
     test_loss, correct = 0, 0
     with torch.no_grad():
-        for X, y in dataloader:
-            X, y = X.to(device), y.to(device)
+        for pack in dataloader:
+            X, y = pack['image'].to(device), pack['label'].to(device)
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()

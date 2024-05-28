@@ -2,7 +2,7 @@ import subprocess
 import json
 
 # Opening JSON file
-f = open('../data/result.json')
+f = open('/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/result.json')
  
 # returns JSON object as 
 # a dictionary
@@ -14,6 +14,7 @@ data = json.load(f)
 # dict_keys(['id', 'annotations', 'drafts', 'predictions', 'data', 'meta', 'created_at', 'updated_at', 'inner_id', 'total_annotations', 'cancelled_annotations', 
 #           'total_predictions', 'comment_count', 'unresolved_comment_count', 'last_comment_updated_at', 'project', 'updated_by', 'comment_authors'])
 categories = data['categories']
+print(categories)
 
 print(len(data['annotations']))
 
@@ -30,6 +31,8 @@ for i in data['annotations']:
         nuc_cnt += 1
     elif i["category_id"] == 4:
         div_nuc_cnt += 1
+    # if not i["segmentation"]:
+    #     print("no segmentation")
 print(f"nuc # is {nuc_cnt}, mn # is {mn_cnt}, apop # is {apop_cnt}, dividing cell # is {div_nuc_cnt}")
  
 # Closing file
