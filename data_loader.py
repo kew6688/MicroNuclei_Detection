@@ -11,25 +11,24 @@ from torchvision.transforms import v2
 import subprocess
 import json
 
-'''
-Customize NucRec dataset loader
 
-__init__
-Returns: None
-
-__getitem__
-Returns: pack: a dictionary contains image, label, path
-
-'''
 class NucRecDataset(Dataset):
-    def __init__(self, transform=None, target_transform=None):
+    '''
+    Customize NucRec dataset loader
+
+    __init__
+    Returns: None
+
+    __getitem__
+    Returns: pack: a dictionary contains image, label, path
+
+    '''
+    def __init__(self, mn_path, nuc_path, transform=None, target_transform=None):
         self.transform = transform
         self.target_transform = target_transform
 
         # read files in the directory, this path is hard coding
         self.img_labels = []
-        mn_path = "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/NucRec/NucReg Dataset/Micronuclie cells"
-        nuc_path = "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/NucRec/NucReg Dataset/Normal Cells"
         for f in listdir(mn_path):
             self.img_labels.append((join(mn_path,f), 0))
         for f in listdir(nuc_path):
