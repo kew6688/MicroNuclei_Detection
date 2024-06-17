@@ -19,17 +19,17 @@ model_path = 'NuclearSegmentation'
 metrics_path = 'metrics.yaml'
 train_log = 'train_log.csv'
 
-with np.load(os.path.join(data_dir, 'train.npz')) as data:
-    X_train = data['X']
-    y_train = data['y']
+# with np.load(os.path.join(data_dir, 'train.npz')) as data:
+#     X_train = data['X']
+#     y_train = data['y']
 
-with np.load(os.path.join(data_dir, 'val.npz')) as data:
-    X_val = data['X']
-    y_val = data['y']
+# with np.load(os.path.join(data_dir, 'val.npz')) as data:
+#     X_val = data['X']
+#     y_val = data['y']
 
-with np.load(os.path.join(data_dir, 'test.npz')) as data:
-    X_test = data['X']
-    y_test = data['y']
+# with np.load(os.path.join(data_dir, 'test.npz')) as data:
+#     X_test = data['X']
+#     y_test = data['y']
 
 # Model architecture
 backbone = "efficientnetv2bl"
@@ -119,69 +119,69 @@ model = PanopticNet(
     pyramid_levels=pyramid_levels,
 )
 
-def semantic_loss(n_classes):
-    def _semantic_loss(y_pred, y_true):
-        if n_classes > 1:
-            return 0.01 * weighted_categorical_crossentropy(
-                y_pred, y_true, n_classes=n_classes
-            )
-        return tf.keras.losses.MSE(y_pred, y_true)
+# def semantic_loss(n_classes):
+#     def _semantic_loss(y_pred, y_true):
+#         if n_classes > 1:
+#             return 0.01 * weighted_categorical_crossentropy(
+#                 y_pred, y_true, n_classes=n_classes
+#             )
+#         return tf.keras.losses.MSE(y_pred, y_true)
 
-    return _semantic_loss
+#     return _semantic_loss
 
-loss = {}
+# loss = {}
 
-# Give losses for all of the semantic heads
-for layer in model.layers:
-    if layer.name.startswith("semantic_"):
-        n_classes = layer.output_shape[-1]
-        loss[layer.name] = semantic_loss(n_classes)
+# # Give losses for all of the semantic heads
+# for layer in model.layers:
+#     if layer.name.startswith("semantic_"):
+#         n_classes = layer.output_shape[-1]
+#         loss[layer.name] = semantic_loss(n_classes)
 
-optimizer = tf.keras.optimizers.Adam(lr=lr, clipnorm=0.001)
+# optimizer = tf.keras.optimizers.Adam(lr=lr, clipnorm=0.001)
 
-model.compile(loss=loss, optimizer=optimizer)
+# model.compile(loss=loss, optimizer=optimizer)
 
-# Clear clutter from previous TensorFlow graphs.
-tf.keras.backend.clear_session()
+# # Clear clutter from previous TensorFlow graphs.
+# tf.keras.backend.clear_session()
 
-monitor = "val_loss"
+# monitor = "val_loss"
 
-csv_logger = tf.keras.callbacks.CSVLogger(train_log)
+# csv_logger = tf.keras.callbacks.CSVLogger(train_log)
 
-# Create callbacks for early stopping and pruning.
-callbacks = [
-    tf.keras.callbacks.ModelCheckpoint(
-        model_path,
-        monitor=monitor,
-        save_best_only=True,
-        verbose=1,
-        save_weights_only=False,
-    ),
-    tf.keras.callbacks.LearningRateScheduler(rate_scheduler(lr=lr, decay=0.99)),
-    tf.keras.callbacks.ReduceLROnPlateau(
-        monitor=monitor,
-        factor=0.1,
-        patience=5,
-        verbose=1,
-        mode="auto",
-        min_delta=0.0001,
-        cooldown=0,
-        min_lr=0,
-    ),
-    tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True),
-    csv_logger,
-]
+# # Create callbacks for early stopping and pruning.
+# callbacks = [
+#     tf.keras.callbacks.ModelCheckpoint(
+#         model_path,
+#         monitor=monitor,
+#         save_best_only=True,
+#         verbose=1,
+#         save_weights_only=False,
+#     ),
+#     tf.keras.callbacks.LearningRateScheduler(rate_scheduler(lr=lr, decay=0.99)),
+#     tf.keras.callbacks.ReduceLROnPlateau(
+#         monitor=monitor,
+#         factor=0.1,
+#         patience=5,
+#         verbose=1,
+#         mode="auto",
+#         min_delta=0.0001,
+#         cooldown=0,
+#         min_lr=0,
+#     ),
+#     tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True),
+#     csv_logger,
+# ]
 
-print(f"Training on {count_gpus()} GPUs.")
+# print(f"Training on {count_gpus()} GPUs.")
 
-# Train model.
-history = model.fit(
-    train_data,
-    steps_per_epoch=train_data.y.shape[0] // batch_size,
-    epochs=epochs,
-    validation_data=val_data,
-    validation_steps=val_data.y.shape[0] // batch_size,
-    callbacks=callbacks,
-)
+# # Train model.
+# history = model.fit(
+#     train_data,
+#     steps_per_epoch=train_data.y.shape[0] // batch_size,
+#     epochs=epochs,
+#     validation_data=val_data,
+#     validation_steps=val_data.y.shape[0] // batch_size,
+#     callbacks=callbacks,
+# )
 
-print("Final", monitor, ":", history.history[monitor][-1])
+# print("Final", monitor, ":", history.history[monitor][-1])
