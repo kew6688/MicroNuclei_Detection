@@ -3,11 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 from skimage.io import imread, imsave, imshow
-from utils.yolo_format_convert import yolo_format_points_to_mask
+import sys
+sys.path.append('/content/utils')
+from yolo_convert import yolo_format_points_to_mask
 
-work_dir = "Data/"
+work_dir = "/content/work/KateData_yolo/"
 
-def evaluate_accuracy(res, cls, img, img_name):
+def evaluate_accuracy(res, img, img_name):
     label_dir = work_dir + "labels/"
     mask_dir = work_dir + "masks/"
     deepcell_mask = np.load(mask_dir + img_name + ".npy")
@@ -17,15 +19,20 @@ def evaluate_accuracy(res, cls, img, img_name):
         # Read and print each line in the file
         for line in label_file:
             l = line.strip().split()
+            # class type: 
+                #   4: cell_active_div, 5: cell_non_div, 6: cell_sick_apop, 7: micronuclei
             cls, points = int(l[0]), l[1:]
+            if cls < 4 or cls > 7:
+              continue
             labeled_mask = yolo_format_points_to_mask(points, img.shape).astype(bool)
             intersect = np.logical_and(deepcell_mask, labeled_mask)
             cover = np.sum(intersect) / np.sum(labeled_mask)
             res[cls][0] += 1
-            res[cls][1] += 1 if cover > 0.8 else 0
-            res[cls][2] += cover
+            if cover > 0.5:
+              res[cls][1] += 1 
+              res[cls][2] += cover
                     
-def main(cls = 5):
+def main():
     img_dir = work_dir + "images/"
     label_dir = work_dir + "labels/"
     mask_dir = work_dir + "masks/"
@@ -39,8 +46,8 @@ def main(cls = 5):
         img_name = file.split(".")[0]
         img = imread(img_dir+file)
         img_shape = img.shape
-        evaluate_accuracy(res, cls, img, img_name)
+        evaluate_accuracy(res, img, img_name)
     for i in range(4,8):
       # record each class [total, matched, coverage]
-      res[i][2] /= res[i][0]
+      res[i][2] /= res[i][1] if res[i][1] != 0 else 1
     print(res)
