@@ -152,7 +152,7 @@ class CropImg:
             None
             (print count of generated image, saved to self.crop_dir)
         '''
-        model = resnet101()
+        model = MNClassifier()
         model.load_state_dict(torch.load(model_path))
         model.eval()
         device = (
@@ -170,7 +170,7 @@ class CropImg:
             # v2.RandomHorizontalFlip(p=0.5),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
-            # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
         
         # crop image into 6 rows, 5 cols
@@ -188,7 +188,7 @@ class CropImg:
 
                 # preprocess the input
                 input_arr = np.array(img2)
-                print(input_arr.shape)
+                # print(input_arr.shape)
                 input_tensor = preprocess(input_arr)
 
                 # display preprocessed test image
@@ -204,16 +204,37 @@ class CropImg:
                         cnt += 1
         print(cnt)
 
+
+
 if __name__ == "__main__":
     dir = '/home/y3229wan/scratch/unlabelled/images/'
-    crop_dir = '/home/y3229wan/scratch/unlabel_crop/'
+    crop_dir = '/home/y3229wan/scratch/best_ROIfilter/'
     # crop_dir = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/cropped_images/'
     label = '/home/y3229wan/scratch/KateData/result.json'
-    model_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/models/resnet101'
+    model_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/best.pt'
     cropimg = CropImg(dir, crop_dir, label)
     # cropimg.crop()
     # cropimg.show_data()
     cropimg.crop_ROI(model_path)
+
+    # preprocess = v2.Compose([
+    #         # v2.Resize(size = (224,224)),
+    #         # v2.RandomHorizontalFlip(p=0.5),
+    #         v2.ToImage(),
+    #         v2.ToDtype(torch.float32, scale=True),
+    #         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    #     ])
+    # file = os.listdir(dir)[0]
+    # im = Image.open(dir+file)
+    # input_tensor = preprocess(im)
+    # print(torch.max(input_tensor), input_tensor.shape, input_tensor.dtype)
+    # plt.imshow(torch.permute(input_tensor, (1,2,0)))
+    # plt.savefig(f"test_PIL.png")
+    # im = read_image(dir+file)
+    # input_tensor = preprocess(im)
+    # print(torch.max(input_tensor), input_tensor.shape, input_tensor.dtype)
+    # plt.imshow(torch.permute(input_tensor, (1,2,0)))
+    # plt.savefig(f"test_v2.png")
 
 """
 2359

@@ -1,0 +1,8 @@
+# All the basic needs for this projectsq
+
+pytorch
+numpy
+PIL
+matplotlib
+skimage
+cv2

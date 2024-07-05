@@ -10,6 +10,7 @@ from torchvision.models import resnet50, ResNet50_Weights, resnet101
 import time
 from train import train
 from test import test
+from models.clas_model import MNClassifier
 
 # resnet on NucRec
 def exp1():
@@ -27,11 +28,11 @@ def exp1():
         transforms.Resize(size = (224,224)),
         v2.RandomHorizontalFlip(p=0.5),
         v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
     
-    mn_path = "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/NucRec/NucReg Dataset/Micronuclie cells"
-    nuc_path = "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/NucRec/NucReg Dataset/Normal Cells"
+    mn_path = "/home/y3229wan/scratch/NucRec/NucReg Dataset/Micronuclie cells"
+    nuc_path = "/home/y3229wan/scratch/NucRec/NucReg Dataset/Normal Cells"
 
     training_data = NucRecDataset(mn_path, nuc_path, transform)
 
@@ -49,7 +50,8 @@ def exp1():
     print(f"Using {device} device")
 
     # print model architecture
-    model = resnet101(weights='IMAGENET1K_V1')
+    # model = resnet101(weights='IMAGENET1K_V1')
+    model = MNClassifier()
     print(model)
 
     # cross valid model
@@ -64,7 +66,8 @@ def exp1():
         # Initialize model
         # weights = ResNet50_Weights.DEFAULT
         # model = resnet50(weights=weights)
-        model = resnet101(weights='IMAGENET1K_V1')
+        # model = resnet101(weights='IMAGENET1K_V1')
+        model = MNClassifier()
 
         # Set model to eval mode
         model.eval()
@@ -77,13 +80,15 @@ def exp1():
         # Train the model
         print(f"============= fold {fold} Start! =============")
         start = time.time()
-        epochs = 20
+        epochs = 40
         for t in range(epochs):
             # print(f"Epoch {t+1}\n-------------------------------")
             train(train_dataloader, model, loss_fn, optimizer, device)
+        print("Test on training set:")
         test(train_dataloader, model, loss_fn, device)
+        print("Test on validation set:")
         test(valid_dataloader, model, loss_fn, device)
-        # torch.save(model.state_dict(), "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN_Classification/output/resnet101")
+        torch.save(model.state_dict(), f"/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/models/MNclassifier_{fold}")
         print(f"spend {(time.time() - start)/60} seconds")
         print(f"============= fold {fold} Done! ============= \n")
 
@@ -92,8 +97,10 @@ def exp2():
     """
     Test classification accuracy on the Kate dataset, model is pretrained by NucRec
     """
-    model = resnet101()
-    model.load_state_dict(torch.load("/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/models/resnet101"))
+    # model = resnet101()
+    # model.load_state_dict(torch.load("/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/models/resnet101"))
+    model = MNClassifier()
+    model.load_state_dict(torch.load("/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/models/MNclassifier_4"))
     model.eval()
 
     transform = v2.Compose([
@@ -136,7 +143,7 @@ def exp2():
     total_size = len(training_data)
     k_fold = 1
     for fold in range(k_fold):
-        train_dataset, valid_dataset = random_split(training_data, (0.7, 0.3))
+        train_dataset, valid_dataset = random_split(training_data, (0.9, 0.1))
 
         train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
         valid_dataloader = DataLoader(valid_dataset, batch_size=64, shuffle=False)
@@ -153,7 +160,7 @@ def exp2():
         # Train the model
         print(f"============= fold {fold} Start! =============")
         start = time.time()
-        epochs = 20
+        epochs = 40
         for t in range(epochs):
             # print(f"Epoch {t+1}\n-------------------------------")
             train(train_dataloader, model, loss_fn, optimizer, device)
@@ -162,8 +169,49 @@ def exp2():
         print(f"spend {(time.time() - start)/60} seconds")
         print(f"============= fold {fold} Done! ============= \n")
     
-    torch.save(model.state_dict(), "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN_Classification/output/trained_kate")
+    torch.save(model.state_dict(), "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/best.pt")
+
+def val():
+    """
+    Test classification accuracy on the Kate dataset, model is pretrained by NucRec
+    """
+    # model = resnet101()
+    # model.load_state_dict(torch.load("/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/models/resnet101"))
+    model = MNClassifier()
+    model.load_state_dict(torch.load("/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/best.pt"))
+    model.eval()
+
+    transform = v2.Compose([
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    mn_path = "/home/y3229wan/scratch/micronuclei"
+    nuc_path = "/home/y3229wan/scratch/nuclei"
+
+    training_data = NucRecDataset(mn_path, nuc_path, transform)
+
+    train_dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
+
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps"
+        if torch.backends.mps.is_available()
+        else "cpu"
+    )
+    print(f"Using {device} device")
+
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters())
+    model.to(device)
+    print(model)
+
+    test(train_dataloader, model, loss_fn, device)
+
 
 if __name__ == "__main__":
     # exp1()
-    exp2()
+    # exp2()
+    val()

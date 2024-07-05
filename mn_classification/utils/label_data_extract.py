@@ -3,10 +3,10 @@ import json
 import os 
 
 dir = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/images'
-print(len(os.listdir(dir)))
+# print(len(os.listdir(dir)))
 
 # Opening JSON file
-f = open('/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/result.json')
+f = open('/home/y3229wan/scratch/KateData_coco/result.json')
  
 # returns JSON object as 
 # a dictionary
