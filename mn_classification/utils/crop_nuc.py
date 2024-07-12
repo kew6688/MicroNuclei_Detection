@@ -2,8 +2,12 @@ import json
 import os 
 from PIL import Image
 from collections import defaultdict
-from main import *
+from MN.mn_classification.main import *
 import numpy as np
+
+# allow truncated image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class CropImg:
     """
@@ -177,9 +181,17 @@ class CropImg:
         box_w, box_h = 224, 224
         x,y = 200, 204
         cnt = 0
+        im = None
 
-        for file in os.listdir(self.dir):
-            im = Image.open(self.dir+file)
+        for i,file in enumerate(sorted(os.listdir(self.dir))):
+            try:
+                im = Image.open(self.dir+file)
+            except:
+                continue
+            if not im:
+                continue
+            print(file)
+            
             for i in range(30):
                 # tile image
                 cur_x, cur_y = x * i//5, y * i%5
@@ -202,39 +214,25 @@ class CropImg:
                     if output.argmax(1) == 0:
                         img2.save(self.crop_dir + file.split('.')[0] + '-' + str(i) + '.png')
                         cnt += 1
+                        print("saved")
+            if cnt > 1000: 
+                print(f"process {i} files to generate 1000 cropped image")
+                break
         print(cnt)
 
 
 
 if __name__ == "__main__":
-    dir = '/home/y3229wan/scratch/unlabelled/images/'
-    crop_dir = '/home/y3229wan/scratch/best_ROIfilter/'
-    # crop_dir = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/cropped_images/'
+    dir = '20221128_sythego_rep3_pngs/'
+    os.mkdir('sythego_rep3_cropped/')
+    crop_dir = 'sythego_rep3_cropped/'
     label = '/home/y3229wan/scratch/KateData/result.json'
-    model_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/best.pt'
+    model_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/MNClassifier_best.pt'
+
     cropimg = CropImg(dir, crop_dir, label)
     # cropimg.crop()
     # cropimg.show_data()
     cropimg.crop_ROI(model_path)
-
-    # preprocess = v2.Compose([
-    #         # v2.Resize(size = (224,224)),
-    #         # v2.RandomHorizontalFlip(p=0.5),
-    #         v2.ToImage(),
-    #         v2.ToDtype(torch.float32, scale=True),
-    #         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    #     ])
-    # file = os.listdir(dir)[0]
-    # im = Image.open(dir+file)
-    # input_tensor = preprocess(im)
-    # print(torch.max(input_tensor), input_tensor.shape, input_tensor.dtype)
-    # plt.imshow(torch.permute(input_tensor, (1,2,0)))
-    # plt.savefig(f"test_PIL.png")
-    # im = read_image(dir+file)
-    # input_tensor = preprocess(im)
-    # print(torch.max(input_tensor), input_tensor.shape, input_tensor.dtype)
-    # plt.imshow(torch.permute(input_tensor, (1,2,0)))
-    # plt.savefig(f"test_v2.png")
 
 """
 2359

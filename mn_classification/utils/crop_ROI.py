@@ -74,7 +74,6 @@ if __name__ == "__main__":
     # crop_dir = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/cropped_images/'
     label = '/home/y3229wan/scratch/KateData/result.json'
     model_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/best.pt'
+
     cropimg = CropImg(dir, crop_dir, label)
-    # cropimg.crop()
-    # cropimg.show_data()
     cropimg.crop_ROI(model_path)

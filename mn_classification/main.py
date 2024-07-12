@@ -1,4 +1,4 @@
-from data_loader import *
+from MN.mn_classification.data_loader import *
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 from torchvision.transforms import v2
 from torchvision.models import resnet50, ResNet50_Weights, resnet101
 import time
-from train import train
-from test import test
-from models.clas_model import MNClassifier
+from MN.mn_classification.train import train
+from MN.mn_classification.test import test
+from MN.models.clas_model import MNClassifier
 
 # resnet on NucRec
 def exp1():

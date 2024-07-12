@@ -1,4 +1,4 @@
-from data_loader import *
+# from data_loader import *
 from torch.utils.data import DataLoader
 
 def train(dataloader, model, loss_fn, optimizer, device):
