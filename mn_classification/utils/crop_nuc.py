@@ -145,12 +145,13 @@ class CropImg:
 
         print(save_id)
 
-    def crop_ROI(self, model_path=None):
+    def crop_ROI(self, model_path=None, processed_img_path=None):
         '''Generate smaller image for better annotation. pre-predict the image if contain mn by using pre-trained ResNet on NucRec dataset,
             to mimic the process of ROI (Region of Interest, https://www.nature.com/articles/s41586-023-06157-7#Sec60)
 
         Args:
-            model: pre trained model that used to classify the proposed image
+            model_path: pre trained model that used to classify the proposed image
+            processed_img_path: the text file location to save processed images
         
         Returns:
             None
@@ -183,14 +184,16 @@ class CropImg:
         cnt = 0
         im = None
 
-        for i,file in enumerate(sorted(os.listdir(self.dir))):
+        seen_img = set()
+
+        for file_cnt,file in enumerate(sorted(os.listdir(self.dir))):
             try:
                 im = Image.open(self.dir+file)
             except:
                 continue
-            if not im:
-                continue
-            print(file)
+
+            # add this image into processed set
+            seen_img.add(file)
             
             for i in range(30):
                 # tile image
@@ -214,25 +217,33 @@ class CropImg:
                     if output.argmax(1) == 0:
                         img2.save(self.crop_dir + file.split('.')[0] + '-' + str(i) + '.png')
                         cnt += 1
-                        print("saved")
-            if cnt > 1000: 
-                print(f"process {i} files to generate 1000 cropped image")
+
+            if cnt > 3000: 
+                print(f"process {file_cnt} files to generate 3000 cropped image")
                 break
         print(cnt)
+
+        # write processed images into a file, so that we won't generate repeat image next time. 
+        # use a+ to append new lines
+        with open(processed_img_path, 'a+') as f:
+            for line in seen_img:
+                f.write(f"{line}\n")
 
 
 
 if __name__ == "__main__":
-    dir = '20221128_sythego_rep3_pngs/'
-    os.mkdir('sythego_rep3_cropped/')
-    crop_dir = 'sythego_rep3_cropped/'
+    dir = '20230621_MCF10A_pngs/'
+    os.mkdir('MCF10A_cropped/')
+    crop_dir = 'MCF10A_cropped/'
     label = '/home/y3229wan/scratch/KateData/result.json'
     model_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN/output/MNClassifier_best.pt'
+
+    processed_img_path = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/MCF10A_processed_images.txt'
 
     cropimg = CropImg(dir, crop_dir, label)
     # cropimg.crop()
     # cropimg.show_data()
-    cropimg.crop_ROI(model_path)
+    cropimg.crop_ROI(model_path, processed_img_path)
 
 """
 2359

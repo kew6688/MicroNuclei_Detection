@@ -143,7 +143,7 @@ def convert_ROI_dataset(data_dir, dest_dir):
     dest_dir: str, where to save the output dataset
   
   Returns:
-  
+
   """
   image_dir = data_dir + 'images/'
   label_dir = data_dir + 'labels/'
