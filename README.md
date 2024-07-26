@@ -73,7 +73,7 @@ We save masks per image in a json file. It can be loaded as a dictionary in pyth
 {
     "image"                 : str,               # Image filename
     "id"                    : int,               # Image id
-    "annotations"           : [annotation],
+    "annotation"            : annotation,
 }
 
 annotation {
