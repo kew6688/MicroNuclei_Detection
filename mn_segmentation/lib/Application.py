@@ -126,7 +126,7 @@ class Application:
       if resolveApop:
         mn_cnt += cluster.resolveApop(pred_boxes)
       else:
-        mn_cnt += len(box)
+        mn_cnt += len(pred_boxes)
     return mn_cnt
 
   def _predict(self, image):

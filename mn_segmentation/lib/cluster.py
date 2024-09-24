@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def boxToCenters(boxes):
   """
-  A list of box in tensor([[x1,y1,x2,y2],...]) 
+  A list of box in ([[x1,y1,x2,y2],...]) 
     to a list of centers [[x,y],...]
   """
   centers = (boxes[:,0:2] + boxes[:,2:])/2
@@ -14,16 +14,15 @@ def boxToCenters(boxes):
 
 def resolveApop(boxes, thresh=5, eps=20, min_samples=1):
     centers = boxToCenters(boxes)
-    X = StandardScaler().fit_transform(centers)
-    db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
+    if len(centers) <= 0:
+      return 0
+      
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(centers)
     labels = db.labels_
 
     # Number of clusters in labels, ignoring noise if present.
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     n_noise_ = list(labels).count(-1)
-
-    print("Estimated number of clusters: %d" % n_clusters_)
-    print("Estimated number of noise points: %d" % n_noise_)
 
     # number of mn without apop cluster
     cnt = 0
