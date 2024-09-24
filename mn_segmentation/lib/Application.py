@@ -1,13 +1,20 @@
-import torch
+import json
+import os
 from PIL import Image
+from collections import defaultdict
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
+import torch
 from torchvision.transforms import v2 as T
 from torchvision.ops import nms
-
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 from torchvision.transforms.functional import pil_to_tensor
+
+import cluster
 
 def get_model_instance_segmentation(num_classes):
     # load an instance segmentation model pre-trained on COCO
@@ -30,6 +37,12 @@ def get_model_instance_segmentation(num_classes):
 
     return model
 
+def get_device():
+  if torch.cuda.is_available():
+    return torch.device('cuda')
+  else:
+    return torch.device('cpu')
+
 def load_weight(model, path):
   model.load_state_dict(torch.load(path))
 
@@ -41,7 +54,7 @@ def get_transform(train):
     transforms.append(T.ToPureTensor())
     return T.Compose(transforms)
 
-def countImage(image_path, model):
+def countImage(image_path, model, device='cpu'):
   im = Image.open(image_path)
   mn_cnt = 0
   nuc_cnt = 0
@@ -92,8 +105,8 @@ class Application:
 
     self.model.to(self.device)
 
-  def predict_image(self, image):
-    im = Image.open(image_path)
+  def predict_image(self, image, resolveApop=True):
+    im = Image.open(image)
     mn_cnt = 0
     nuc_cnt = 0
     for i in range(35):
@@ -108,11 +121,12 @@ class Application:
       image = pil_to_tensor(im.crop(box))
       pred = self._predict(image)
 
-      ind = nms(pred["boxes"], pred["scores"], 0.2)
-      # print(ind)
-      pred_labels = [f"pedestrian: {score:.3f}" for label, score in zip(pred["labels"], pred["scores"])]
-      pred_boxes = pred["boxes"].long()
-      mn_cnt += len(pred_boxes[ind][pred["scores"][ind]>0.6])
+      pred_boxes = self._post_process(pred)
+
+      if resolveApop:
+        mn_cnt += cluster.resolveApop(pred_boxes)
+      else:
+        mn_cnt += len(box)
     return mn_cnt
 
   def _predict(self, image):
@@ -131,6 +145,7 @@ class Application:
     # print(ind)
     pred_labels = [f"pedestrian: {score:.3f}" for label, score in zip(pred["labels"], pred["scores"])]
     pred_boxes = pred["boxes"].long()
+    return pred_boxes[ind][pred["scores"][ind]>0.4]
 
   def _tile_input(self, image_path, wnd_sz = 224):
     '''

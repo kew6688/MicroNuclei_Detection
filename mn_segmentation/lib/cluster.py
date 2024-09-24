@@ -4,9 +4,18 @@ from sklearn import metrics
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 
-def resolveApop(centers):
-    X = StandardScaler().fit_transform(X)
-    db = DBSCAN(eps=0.3, min_samples=1).fit(X)
+def boxToCenters(boxes):
+  """
+  A list of box in tensor([[x1,y1,x2,y2],...]) 
+    to a list of centers [[x,y],...]
+  """
+  centers = (boxes[:,0:2] + boxes[:,2:])/2
+  return centers.int().cpu().numpy()
+
+def resolveApop(boxes, thresh=5, eps=20, min_samples=1):
+    centers = boxToCenters(boxes)
+    X = StandardScaler().fit_transform(centers)
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
     labels = db.labels_
 
     # Number of clusters in labels, ignoring noise if present.
@@ -22,13 +31,14 @@ def resolveApop(centers):
     for k in unique_labels:
         if k == -1: continue
         n_in_cluster = sum(labels == k)
-        if n_in_cluster <= 5: 
+        if n_in_cluster <= thresh: 
             cnt += n_in_cluster
     return cnt
 
-def testApop(centers):
-    X = StandardScaler().fit_transform(centers)
-    db = DBSCAN(eps=0.3, min_samples=1).fit(X)
+def testApop(boxes,eps=20, min_samples=1):
+    X = boxToCenters(boxes)
+    # X = StandardScaler().fit_transform(centers)
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
     labels = db.labels_
 
     # Number of clusters in labels, ignoring noise if present.
