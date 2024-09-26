@@ -108,7 +108,6 @@ class Application:
   def predict_image(self, image, resolveApop=True):
     im = Image.open(image)
     mn_cnt = 0
-    nuc_cnt = 0
     for i in range(35):
       # skip footer
       if i in [4,9,29]: continue
@@ -121,13 +120,37 @@ class Application:
       image = pil_to_tensor(im.crop(box))
       pred = self._predict(image)
 
-      pred_boxes = self._post_process(pred)
+      pred_boxes,_ = self._post_process(pred)
 
       if resolveApop:
         mn_cnt += cluster.resolveApop(pred_boxes)
       else:
         mn_cnt += len(pred_boxes)
     return mn_cnt
+  
+  def predict_image_info(self, image, conf=0.4):
+    im = Image.open(image)
+    output = {"coord":[], "area":[], "bbox":[]}
+    for i in range(35):
+      # skip footer
+      if i in [4,9,29]: continue
+
+      # tile image
+      wnd_sz = 224
+      cur_x, cur_y = wnd_sz * (i//5), wnd_sz * (i%5)
+      box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
+
+      image = pil_to_tensor(im.crop(box))
+      pred = self._predict(image)
+
+      pred_boxes, pred_masks = self._post_process(pred, conf)
+      pred_boxes[:, [0,2]] += cur_x
+      pred_boxes[:, [1,3]] += cur_y
+      output["bbox"] += pred_boxes.cpu().numpy().tolist()
+      output["coord"] += cluster.boxToCenters(pred_boxes).tolist()
+      output["area"] += torch.sum(pred_masks, 0).cpu().numpy().tolist()
+
+    return output
 
   def _predict(self, image):
     eval_transform = get_transform(train=False)
@@ -140,12 +163,11 @@ class Application:
         pred = predictions[0]
     return pred
 
-  def _post_process(self, pred):
+  def _post_process(self, pred, conf=0.4):
     ind = nms(pred["boxes"], pred["scores"], 0.2)
     # print(ind)
-    pred_labels = [f"pedestrian: {score:.3f}" for label, score in zip(pred["labels"], pred["scores"])]
     pred_boxes = pred["boxes"].long()
-    return pred_boxes[ind][pred["scores"][ind]>0.4]
+    return pred_boxes[ind][pred["scores"][ind]>conf], pred["masks"][ind][pred["scores"][ind]>conf]
 
   def _tile_input(self, image_path, wnd_sz = 224):
     '''
