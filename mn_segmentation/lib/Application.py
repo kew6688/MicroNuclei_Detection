@@ -146,10 +146,12 @@ class Application:
       pred_boxes, pred_masks = self._post_process(pred, conf)
       pred_boxes[:, [0,2]] += cur_x
       pred_boxes[:, [1,3]] += cur_y
+      area = pred_masks.sum(1).sum(1).sum(1)
+      # print(area.shape)
+      
       output["bbox"] += pred_boxes.cpu().numpy().tolist()
       output["coord"] += cluster.boxToCenters(pred_boxes).tolist()
-      output["area"] += torch.sum(pred_masks, 0).cpu().numpy().tolist()
-
+      output["area"] += area.cpu().numpy().tolist()
     return output
 
   def _predict(self, image):

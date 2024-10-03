@@ -46,17 +46,10 @@ Multi task diffusion
 │   ├── trainer           # Trainer functions to train networks
 │   ├── utils             # Utils code
 │   └── run_xxx.py        # Run file to start an experiment
-├── configs               # Config files
-│   ├── examples          # Example config files with explanations
-│   └── python            # Python configuration file for global Python settings
-├── datamodel             # Datamodels of WSI, Patientes etc. (not ML specific)
-├── docs                  # Documentation files (in addition to this main README.md)
 ├── models                # Machine Learning Models (PyTorch implementations)
 │   ├── encoders          # Encoder networks (see ML structure below)
 │   ├── pretrained        # Checkpoint of important pretrained models (needs to be downloaded from Google drive)
 │   └── segmentation      # CellViT Code
-├── preprocessing         # Preprocessing code
-│   └── patch_extraction  # Code to extract patches from WSI
 ```
 
 # Dependency
