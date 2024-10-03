@@ -90,11 +90,11 @@ def countImage(image_path, model, device='cpu'):
 
 class Application:
   # object that takes a model and manage predictions
-  def __init__(self, model=None, device=None):
+  def __init__(self, weight=None, model=None, device=None):
     if not model:
       num_class = 2
       self.model = get_model_instance_segmentation(num_class)
-      load_weight(self.model, "RCNN.pt")
+      load_weight(self.model, weight)
     else:
       self.model = model
 
