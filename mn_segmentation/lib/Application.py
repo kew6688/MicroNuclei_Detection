@@ -14,7 +14,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 from torchvision.transforms.functional import pil_to_tensor
 
-import cluster
+import mn_segmentation.lib.cluster
 
 def get_model_instance_segmentation(num_classes):
     # load an instance segmentation model pre-trained on COCO
