@@ -1,4 +1,13 @@
-﻿# Dataset
+# Installation
+This tool need to be installed before use. All the requirements are in `requirements.txt`. Please install pytorch and torchvision dependencies. You can install this tool on a GPU machine using:
+
+```
+git clone https://github.com/kew6688/MicroNuclei_Detection.git && cd MicroNuclei_Detection
+
+pip install -e .
+```
+ 
+ # Dataset
 - NucRec
 - DeepCell
 - Kate
