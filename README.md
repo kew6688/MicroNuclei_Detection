@@ -99,3 +99,8 @@ Data/
 ├── masks                 # Masks that in numpy file for each image
 └── labels                # Labels that in YOLO format for each image
 ```
+
+# Output format
+
+# Experiements
+image process workflow: add multi-processing
