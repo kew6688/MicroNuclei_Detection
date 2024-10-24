@@ -2,7 +2,7 @@
 import json
 import os 
 
-dir = '/home/y3229wan/projects/def-sushant/y3229wan/mn-project/Data/KateData/images'
+dir = '/home/y3229wan/scratch/KateData_coco/images/'
 # print(len(os.listdir(dir)))
 
 # Opening JSON file
@@ -20,7 +20,7 @@ data = json.load(f)
 categories = data['categories']
 print(categories)
 
-print(len(data['annotations']))
+print(f"total images labeled are: {len(os.listdir(dir))}, total labels are: {len(data['annotations'])}")
 
 mn_cnt = 0
 apop_cnt = 0

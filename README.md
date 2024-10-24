@@ -1,4 +1,13 @@
-﻿# Dataset
+# Installation
+This tool need to be installed before use. All the requirements are in `requirements.txt`. Please install pytorch and torchvision dependencies. You can install this tool on a GPU machine using:
+
+```
+git clone https://github.com/kew6688/MicroNuclei_Detection.git && cd MicroNuclei_Detection
+
+pip install -e .
+```
+ 
+ # Dataset
 - NucRec
 - DeepCell
 - Kate
@@ -90,3 +99,32 @@ Data/
 ├── masks                 # Masks that in numpy file for each image
 └── labels                # Labels that in YOLO format for each image
 ```
+
+# Output format
+Generate a json file with all the processed nuclei and mn information stored in the following format.
+
+```
+[image_info], size n == number of images:
+
+[
+    {
+        "image": image_name,    # str
+        "nuclei": nuc_info,
+        "micronuclei": mn_info
+    }
+]
+
+For each info:
+
+{
+      "coord": [[x1, y1],...],   `# list of center coordinates
+      "area": [x,...],        # list of mask area
+      "bbox": [...],         # list of bounding box, 
+                        for mn bbox: (xmin, ymin, xmax, ymax)
+                        for nuc bbox: (x, y, w, h) 
+      "parent": [id,...]       # assigned parent nuclei, mn only
+}
+
+```
+# Experiements
+image process workflow: add multi-processing
