@@ -120,7 +120,7 @@ class Application:
       image = pil_to_tensor(im.crop(box))
       pred = self._predict(image)
 
-      pred_boxes,_ = self._post_process(pred, conf)
+      pred_boxes,_,_ = self._post_process(pred, conf)
 
       if resolveApop:
         mn_cnt += cluster.resolveApop(pred_boxes)
@@ -143,7 +143,7 @@ class Application:
       image = pil_to_tensor(im.crop(box))
       pred = self._predict(image)
 
-      pred_boxes, pred_masks = self._post_process(pred, conf)
+      pred_boxes, pred_masks,_ = self._post_process(pred, conf)
       pred_boxes[:, [0,2]] += cur_x
       pred_boxes[:, [1,3]] += cur_y
       area = pred_masks.sum(1).sum(1).sum(1)
@@ -169,7 +169,7 @@ class Application:
     ind = nms(pred["boxes"], pred["scores"], 0.2)
     # print(ind)
     pred_boxes = pred["boxes"].long()
-    return pred_boxes[ind][pred["scores"][ind]>conf], pred["masks"][ind][pred["scores"][ind]>conf]
+    return pred_boxes[ind][pred["scores"][ind]>conf], pred["masks"][ind][pred["scores"][ind]>conf], pred["scores"][ind][pred["scores"][ind]>conf]
 
   def _tile_input(self, image_path, wnd_sz = 224):
     '''
