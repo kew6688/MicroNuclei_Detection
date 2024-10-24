@@ -14,7 +14,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 from torchvision.transforms.functional import pil_to_tensor
 
-import mn_segmentation.lib.cluster
+import mn_segmentation.lib.cluster as cluster
 
 def get_model_instance_segmentation(num_classes):
     # load an instance segmentation model pre-trained on COCO
@@ -105,7 +105,7 @@ class Application:
 
     self.model.to(self.device)
 
-  def predict_image(self, image, resolveApop=True):
+  def predict_image(self, image, resolveApop=True, conf=0.5):
     im = Image.open(image)
     mn_cnt = 0
     for i in range(35):
@@ -120,7 +120,7 @@ class Application:
       image = pil_to_tensor(im.crop(box))
       pred = self._predict(image)
 
-      pred_boxes,_ = self._post_process(pred)
+      pred_boxes,_ = self._post_process(pred, conf)
 
       if resolveApop:
         mn_cnt += cluster.resolveApop(pred_boxes)
