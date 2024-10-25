@@ -7,10 +7,6 @@ git clone https://github.com/kew6688/MicroNuclei_Detection.git && cd MicroNuclei
 pip install -e .
 ```
  
- # Dataset
-- NucRec
-- DeepCell
-- Kate
 
 # Requirements
 NucRec: 
@@ -97,6 +93,7 @@ Data/
 ├── images                # All the images
 ├── result.json           # Json file that stores all the annotations
 ├── masks                 # Masks that in numpy file for each image
+├── label_masks           # Masks that in numpy file for each image, instances are encoded as different colors (0 is background)
 └── labels                # Labels that in YOLO format for each image
 ```
 
