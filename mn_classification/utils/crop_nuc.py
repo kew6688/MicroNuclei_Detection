@@ -197,7 +197,7 @@ class CropImg:
             
             for i in range(30):
                 # tile image
-                cur_x, cur_y = x * i//5, y * i%5
+                cur_x, cur_y = x * (i//5), y * (i%5)
                 box = (cur_x, cur_y, cur_x + box_w, cur_y + box_h)
                 img2 = im.crop(box)
 

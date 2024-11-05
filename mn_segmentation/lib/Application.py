@@ -164,6 +164,31 @@ class Application:
         predictions = self.model([x, ])
         pred = predictions[0]
     return pred
+  
+  def predict_image_mask(self, image, conf=0.7, footer=True):
+    im = Image.open(image)
+    image_height, image_width = np.array(im).shape[:2]
+    # Create an empty array of the same size as the image to hold the masks
+    output_mask = np.zeros((image_height, image_width), dtype=np.uint8)
+    mn_id = 1
+    for i in range(35):
+      # skip footer
+      if footer and i in [4,9,29]: continue
+
+      # tile image
+      wnd_sz = 224
+      cur_x, cur_y = wnd_sz * (i//5), wnd_sz * (i%5)
+      box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
+
+      image = pil_to_tensor(im.crop(box))
+      pred = self._predict(image)
+
+      pred_boxes, pred_masks,_ = self._post_process(pred, conf)
+      for mask in pred_masks:
+        m = mask > conf
+        output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
+        mn_id += 1
+    return output_mask
 
   def _post_process(self, pred, conf=0.4):
     ind = nms(pred["boxes"], pred["scores"], 0.2)
