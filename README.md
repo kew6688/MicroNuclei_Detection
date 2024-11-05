@@ -22,5 +22,5 @@ Automated pipeline to process images. Further details will be add [here](www...)
  - predict masks
  - output a info dictionary with box, center location and size
 
-Please refer to the examples in the [tutorial.ipynb](./notebooks/tutorial.ipynb)
+Please refer to the examples in the [tutorial.ipynb](./notebooks/tutorial.ipynb) (open in [colab](https://colab.research.google.com/github/kew6688/MicroNuclei_Detection/blob/main/notebooks/tutorial.ipynb)
 
