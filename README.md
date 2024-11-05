@@ -1,4 +1,9 @@
-# Installation
+# Micronuclei detection
+
+![sample](sample_images/example.png)
+
+
+## Installation
 This tool need to be installed before use. All the requirements are in `requirements.txt`. Please install pytorch and torchvision dependencies. You can install this tool on a GPU machine using:
 
 ```
@@ -8,31 +13,9 @@ pip install -e .
 ```
  
 
-# Requirements
-NucRec: 
-    pytorch
-    python 3.11
+## Usage:
 
-deepcell:
-    module load StdEnv/2020
-    avail_wheels tensorflow --all_versions --all_python | grep 2.8.0
-    module load python/3.10
-
-# Classification
-Pretrained ResNet101 running on NucRec
-Crop specific region to generate data from Kate
-
-# Segmentation
-DeepCell
-Vision transformer
-YOLOv10
-
-# Tracking
-
-# Generate
-Multi task diffusion
-
-# Usage:
+see the tutorial.ipynb
 
 ## Project Structure:
 
@@ -57,13 +40,13 @@ Multi task diffusion
 │   └── segmentation      # CellViT Code
 ```
 
-# Dependency
+## Dependency
 
 https://stackoverflow.com/questions/714063/importing-modules-from-parent-folder
 
 build project from root dir. Import by prepending MN.
 
-# Dataset 
+## Dataset 
 The following is the overview of the dataset. The dataset can be download here, by downloading the dataset you agree that you have read and accept licence.
 
 We save masks per image in a json file. It can be loaded as a dictionary in python in the below format:
@@ -97,7 +80,7 @@ Data/
 └── labels                # Labels that in YOLO format for each image
 ```
 
-# Output format
+## Output format
 Generate a json file with all the processed nuclei and mn information stored in the following format.
 
 ```
