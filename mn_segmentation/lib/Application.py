@@ -171,21 +171,22 @@ class Application:
     # Create an empty array of the same size as the image to hold the masks
     output_mask = np.zeros((image_height, image_width), dtype=np.uint8)
     mn_id = 1
-    for i in range(35):
+    for i in range(24):
       # skip footer
       if footer and i in [4,9,29]: continue
 
       # tile image
       wnd_sz = 224
-      cur_x, cur_y = wnd_sz * (i//5), wnd_sz * (i%5)
+      cur_x, cur_y = wnd_sz * (i//4), wnd_sz * (i%4)
       box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
 
       image = pil_to_tensor(im.crop(box))
       pred = self._predict(image)
 
       pred_boxes, pred_masks,_ = self._post_process(pred, conf)
+      pred_masks = pred_masks.cpu().numpy().squeeze(1)
       for i in range(pred_masks.shape[0]):
-        m = (pred_masks[i] > conf).cpu().numpy()
+        m = (pred_masks[i] > conf)
         output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
         mn_id += 1
     return output_mask
