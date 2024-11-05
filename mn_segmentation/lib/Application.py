@@ -184,8 +184,8 @@ class Application:
       pred = self._predict(image)
 
       pred_boxes, pred_masks,_ = self._post_process(pred, conf)
-      for mask in pred_masks:
-        m = (mask > conf).cpu().numpy()
+      for i in range(pred_masks.shape[0]):
+        m = (pred_masks[i] > conf).cpu().numpy()
         output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
         mn_id += 1
     return output_mask
