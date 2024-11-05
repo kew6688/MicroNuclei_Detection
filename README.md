@@ -1,6 +1,6 @@
 # Micronuclei detection
 
-![sample](./sample_images/example.png)
+![sample](./sample_images/example1.png)
 
 
 ## Installation
