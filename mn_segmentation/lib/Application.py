@@ -105,55 +105,6 @@ class Application:
 
     self.model.to(self.device)
 
-  def predict_image(self, image, resolveApop=True, conf=0.5):
-    im = Image.open(image)
-    mn_cnt = 0
-    for i in range(35):
-      # skip footer
-      if i in [4,9,29]: continue
-
-      # tile image
-      wnd_sz = 224
-      cur_x, cur_y = wnd_sz * (i//5), wnd_sz * (i%5)
-      box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
-
-      image = pil_to_tensor(im.crop(box))
-      pred = self._predict(image)
-
-      pred_boxes,_,_ = self._post_process(pred, conf)
-
-      if resolveApop:
-        mn_cnt += cluster.resolveApop(pred_boxes)
-      else:
-        mn_cnt += len(pred_boxes)
-    return mn_cnt
-  
-  def predict_image_info(self, image, conf=0.4):
-    im = Image.open(image)
-    output = {"coord":[], "area":[], "bbox":[]}
-    for i in range(35):
-      # skip footer
-      if i in [4,9,29]: continue
-
-      # tile image
-      wnd_sz = 224
-      cur_x, cur_y = wnd_sz * (i//5), wnd_sz * (i%5)
-      box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
-
-      image = pil_to_tensor(im.crop(box))
-      pred = self._predict(image)
-
-      pred_boxes, pred_masks,_ = self._post_process(pred, conf)
-      pred_boxes[:, [0,2]] += cur_x
-      pred_boxes[:, [1,3]] += cur_y
-      area = pred_masks.sum(1).sum(1).sum(1)
-      # print(area.shape)
-      
-      output["bbox"] += pred_boxes.cpu().numpy().tolist()
-      output["coord"] += cluster.boxToCenters(pred_boxes).tolist()
-      output["area"] += area.cpu().numpy().tolist()
-    return output
-
   def _predict(self, image):
     eval_transform = get_transform(train=False)
     self.model.eval()
@@ -165,32 +116,6 @@ class Application:
         pred = predictions[0]
     return pred
   
-  def predict_image_mask(self, image, conf=0.7, footer=True):
-    im = Image.open(image)
-    image_height, image_width = np.array(im).shape[:2]
-    # Create an empty array of the same size as the image to hold the masks
-    output_mask = np.zeros((image_height, image_width), dtype=np.uint8)
-    mn_id = 1
-    for i in range(24):
-      # skip footer
-      if footer and i in [4,9,29]: continue
-
-      # tile image
-      wnd_sz = 224
-      cur_x, cur_y = wnd_sz * (i//4), wnd_sz * (i%4)
-      box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
-
-      image = pil_to_tensor(im.crop(box))
-      pred = self._predict(image)
-
-      pred_boxes, pred_masks,_ = self._post_process(pred, conf)
-      pred_masks = pred_masks.cpu().numpy().squeeze(1)
-      for i in range(pred_masks.shape[0]):
-        m = (pred_masks[i] > conf)
-        output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
-        mn_id += 1
-    return output_mask
-
   def _post_process(self, pred, conf=0.4):
     ind = nms(pred["boxes"], pred["scores"], 0.2)
     # print(ind)
@@ -215,6 +140,102 @@ class Application:
       l.append(image)
     return l
 
-
   def _untile_output(self, image_path):
     pass
+
+  def predict_image_count(self, image, resolveApop=True, conf=0.5, footer=False):
+    im = Image.open(image)
+    mn_cnt = 0
+
+    # crop image to model input size 224x224
+    wnd_sz = 224
+    height, width = np.array(im).shape[:2]
+
+    # calculate how many rows and cols to cover the image
+    for i in range(height // wnd_sz + 1):
+      for j in range(width // wnd_sz + 1):
+        # skip footer, only for internal use on image with footer note
+        if footer and i in [4,9,29]: continue
+
+        # tile image
+        cur_x, cur_y = wnd_sz * j, wnd_sz * i
+        box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
+
+        image = pil_to_tensor(im.crop(box))
+        pred = self._predict(image)
+
+        pred_boxes,_,_ = self._post_process(pred, conf)
+
+        if resolveApop:
+          mn_cnt += cluster.resolveApop(pred_boxes)
+        else:
+          mn_cnt += len(pred_boxes)
+    return mn_cnt
+  
+  def predict_image_info(self, image, conf=0.4):
+    im = Image.open(image)
+    output = {"coord":[], "area":[], "bbox":[]}
+
+    # crop image to model input size 224x224
+    wnd_sz = 224
+    height, width = np.array(im).shape[:2]
+
+    # calculate how many rows and cols to cover the image
+    for i in range(height // wnd_sz + 1):
+      for j in range(width // wnd_sz + 1):
+        # skip footer
+        if i in [4,9,29]: continue
+
+        # tile image
+        cur_x, cur_y = wnd_sz * j, wnd_sz * i
+        box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
+
+        image = pil_to_tensor(im.crop(box))
+        pred = self._predict(image)
+
+        pred_boxes, pred_masks,_ = self._post_process(pred, conf)
+        pred_boxes[:, [0,2]] += cur_x
+        pred_boxes[:, [1,3]] += cur_y
+        area = pred_masks.sum(1).sum(1).sum(1)
+        # print(area.shape)
+        
+        output["bbox"] += pred_boxes.cpu().numpy().tolist()
+        output["coord"] += cluster.boxToCenters(pred_boxes).tolist()
+        output["area"] += area.cpu().numpy().tolist()
+    return output
+  
+  def predict_image_mask(self, image, conf=0.7, footer=True):
+    im = Image.open(image)
+    image_height, image_width = np.array(im).shape[:2]
+
+    # Create an empty array of the same size as the image to hold the masks
+    output_mask = np.zeros((image_height, image_width), dtype=np.uint8)
+
+    mn_id = 1
+
+    # crop image to model input size 224x224
+    wnd_sz = 224
+    height, width = np.array(im).shape[:2]
+
+    # calculate how many rows and cols to cover the image
+    for i in range(height // wnd_sz):
+      for j in range(width // wnd_sz):
+        # skip footer
+        if footer and i in [4,9,29]: continue
+
+        # tile image
+        wnd_sz = 224
+        cur_x, cur_y = wnd_sz * j, wnd_sz * i
+        box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
+
+        image = pil_to_tensor(im.crop(box))
+        pred = self._predict(image)
+
+        pred_boxes, pred_masks,_ = self._post_process(pred, conf)
+        pred_masks = pred_masks.cpu().numpy().squeeze(1)
+        for i in range(pred_masks.shape[0]):
+          m = (pred_masks[i] > conf)
+          output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
+          mn_id += 1
+    return output_mask
+

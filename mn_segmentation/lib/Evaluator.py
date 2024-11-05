@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 class Evaluator:
   def __init__(self):
       self.pred_list = []
