@@ -1,3 +1,4 @@
+# generate full json info for mn and nuc segmentation
 
 import sys
 import os
