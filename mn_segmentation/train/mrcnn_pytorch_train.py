@@ -1,4 +1,19 @@
-from dataset import get_transform
+from dataset import get_transform, mnMaskDatasetFinal
+import os
+import torch
+import numpy as np
+import utils
+
+from torchvision.io import read_image
+from torchvision.ops.boxes import masks_to_boxes
+from torchvision import tv_tensors
+from torchvision.transforms.v2 import functional as F
+
+import torchvision
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from torchvision.transforms import v2 as T
+from engine import train_one_epoch, evaluate
 
 def trainer_mrcnn(model, epoch, data_loader=None, optimizer=None):
     # train on the GPU or on the CPU, if a GPU is not available
@@ -7,8 +22,8 @@ def trainer_mrcnn(model, epoch, data_loader=None, optimizer=None):
     # our dataset has two classes only - background and mn
     num_classes = 2
     # use our dataset and defined transformations
-    dataset = mnMaskDataset('mnMask/data', get_transform(train=True))
-    dataset_test = mnMaskDataset('mnMask/data', get_transform(train=False))
+    dataset = mnMaskDatasetFinal('mnMask/data', get_transform(train=True))
+    dataset_test = mnMaskDatasetFinal('mnMask/data', get_transform(train=False))
 
     # split the dataset in train and test set
     indices = torch.randperm(len(dataset)).tolist()
