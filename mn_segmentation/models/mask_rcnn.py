@@ -7,6 +7,7 @@ from collections import OrderedDict
 from typing import Any, Callable, Optional
 
 from torch import nn
+import torchvision
 from torchvision.ops import MultiScaleRoIAlign
 
 from torchvision.ops import misc as misc_nn_ops
@@ -15,9 +16,11 @@ from torchvision.models._api import register_model, Weights, WeightsEnum
 from torchvision.models._meta import _COCO_CATEGORIES
 from torchvision.models._utils import _ovewrite_value_param, handle_legacy_interface
 from torchvision.models.resnet import resnet50, ResNet50_Weights
-from torchvision.models.detection._utils import overwrite_eps
+from torchvision.models.resnet import resnet50, ResNet50_Weights
+from torchvision.models.detection.rpn import AnchorGenerator
 from torchvision.models.detection.backbone_utils import _resnet_fpn_extractor, _validate_trainable_layers
 from torchvision.models.detection.faster_rcnn import _default_anchorgen, FasterRCNN, FastRCNNConvFCHead, RPNHead
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 __all__ = [
     "MaskRCNN",
@@ -295,6 +298,39 @@ def maskrcnn_resnet50_fpn(
     if weights is not None:
         model.load_state_dict(weights.get_state_dict(progress=progress, check_hash=True))
 
+    ##############################################################
+    # after load pre-trained weight, custom model parts load here#
+    ##############################################################
+
+    #create a custom anchor_generator for the FPN
+    anchor_generator = AnchorGenerator(
+        sizes=((16,), (32,), (64)),
+        aspect_ratios=tuple([(0.5, 1.0, 1.5) for _ in range(3)]))
+
+    model.rpn.anchor_generator = anchor_generator
+
+    # 256 because that's the number of features that FPN returns
+    model.rpn.head = RPNHead(256, anchor_generator.num_anchors_per_location()[0])
+    
+    # custom RPN NMS
+    model.rpn.rpn_nms_thresh = 0.5
+
+    # get the number of input features for the classifier
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
+
+    # replace the pre-trained head with a new one
+    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+
+    # custom box NMS
+    model.roi_heads.box_nms_thresh = 0.2
+
+    # now get the number of input features for the mask classifier
+    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
+    hidden_layer = 256
+
+    # and replace the mask predictor with a new one
+    model.roi_heads.mask_predictor = MaskRCNNPredictor(in_features_mask,
+                                                    hidden_layer,num_classes)
     return model
 
 
@@ -310,37 +346,44 @@ def maskrcnn_mobile(
     """custom wrapper for PyTorch maskrcnn_resnet50_fpn_v2
         change ROI_generator and hyperparameters.
     """
-    weights = MaskRCNN_ResNet50_FPN_V2_Weights.verify(weights)
-    weights_backbone = ResNet50_Weights.verify(weights_backbone)
+    backbone = torchvision.models.mobilenet_v2(weights="DEFAULT").features
+    # ``FasterRCNN`` needs to know the number of
+    # output channels in a backbone. For mobilenet_v2, it's 1280
+    # so we need to add it here
+    backbone.out_channels = 1280
 
-    if weights is not None:
-        weights_backbone = None
-        num_classes = _ovewrite_value_param("num_classes", num_classes, len(weights.meta["categories"]))
-    elif num_classes is None:
-        num_classes = 91
-
-    is_trained = weights is not None or weights_backbone is not None
-    trainable_backbone_layers = _validate_trainable_layers(is_trained, trainable_backbone_layers, 5, 3)
-
-    backbone = resnet50(weights=weights_backbone, progress=progress)
-    backbone = _resnet_fpn_extractor(backbone, trainable_backbone_layers, norm_layer=nn.BatchNorm2d)
-    rpn_anchor_generator = _default_anchorgen()
-    rpn_head = RPNHead(backbone.out_channels, rpn_anchor_generator.num_anchors_per_location()[0], conv_depth=2)
-    box_head = FastRCNNConvFCHead(
-        (backbone.out_channels, 7, 7), [256, 256, 256, 256], [1024], norm_layer=nn.BatchNorm2d
+    # let's make the RPN generate 5 x 3 anchors per spatial
+    # location, with 5 different sizes and 3 different aspect
+    # ratios. We have a Tuple[Tuple[int]] because each feature
+    # map could potentially have different sizes and
+    # aspect ratios
+    anchor_generator = AnchorGenerator(
+        sizes=((32, 64, 128),),
+        aspect_ratios=((0.5, 1.0, 2.0),)
     )
+
+    # let's define what are the feature maps that we will
+    # use to perform the region of interest cropping, as well as
+    # the size of the crop after rescaling.
+    # if your backbone returns a Tensor, featmap_names is expected to
+    # be [0]. More generally, the backbone should return an
+    # ``OrderedDict[Tensor]``, and in ``featmap_names`` you can choose which
+    # feature maps to use.
+    roi_pooler = torchvision.ops.MultiScaleRoIAlign(
+        featmap_names=['0'],
+        output_size=7,
+        sampling_ratio=2
+    )
+    
     mask_head = MaskRCNNHeads(backbone.out_channels, [256, 256, 256, 256], 1, norm_layer=nn.BatchNorm2d)
+
+    # put the pieces together inside a Mask-RCNN model
     model = MaskRCNN(
         backbone,
         num_classes=num_classes,
-        rpn_anchor_generator=rpn_anchor_generator,
-        rpn_head=rpn_head,
-        box_head=box_head,
+        rpn_anchor_generator=anchor_generator,
+        box_roi_pool=roi_pooler,
         mask_head=mask_head,
         **kwargs,
     )
-
-    if weights is not None:
-        model.load_state_dict(weights.get_state_dict(progress=progress, check_hash=True))
-
     return model
