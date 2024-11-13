@@ -387,7 +387,7 @@ def maskrcnn_mobile(
     )
     return model
 
-def maskrcnn_resnetXt(name, num_classes, pretrained, res='normal'):
+def maskrcnn_resnet(name, num_classes, pretrained, res='normal'):
     print('Using maskrcnn with {} backbone...'.format(name))
 
     backbone = resnet_fpn_backbone(name, pretrained=pretrained, trainable_layers=5)
