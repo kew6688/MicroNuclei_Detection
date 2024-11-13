@@ -18,7 +18,7 @@ from torchvision.models._utils import _ovewrite_value_param, handle_legacy_inter
 from torchvision.models.resnet import resnet50, ResNet50_Weights
 from torchvision.models.resnet import resnet50, ResNet50_Weights
 from torchvision.models.detection.rpn import AnchorGenerator
-from torchvision.models.detection.backbone_utils import _resnet_fpn_extractor, _validate_trainable_layers
+from torchvision.models.detection.backbone_utils import resnet_fpn_backbone, _resnet_fpn_extractor, _validate_trainable_layers
 from torchvision.models.detection.faster_rcnn import _default_anchorgen, FasterRCNN, FastRCNNConvFCHead, RPNHead
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
@@ -303,9 +303,9 @@ def maskrcnn_resnet50_fpn(
     ##############################################################
 
     #create a custom anchor_generator for the FPN
-    anchor_generator = AnchorGenerator(
-        sizes=((16,), (32,), (64)),
-        aspect_ratios=tuple([(0.5, 1.0, 1.5) for _ in range(3)]))
+    sizes = ((4,), (8,), (16,), (32,), (64,))
+    aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),) * len(sizes)
+    anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=aspect_ratios)
 
     model.rpn.anchor_generator = anchor_generator
 
@@ -317,6 +317,9 @@ def maskrcnn_resnet50_fpn(
 
     # get the number of input features for the classifier
     in_features = model.roi_heads.box_predictor.cls_score.in_features
+
+    # number of class in our dataset
+    num_classes = 2
 
     # replace the pre-trained head with a new one
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
@@ -336,11 +339,7 @@ def maskrcnn_resnet50_fpn(
 
 def maskrcnn_mobile(
     *,
-    weights: None,
-    progress: bool = True,
     num_classes: Optional[int] = None,
-    weights_backbone: Optional[ResNet50_Weights] = None,
-    trainable_backbone_layers: Optional[int] = None,
     **kwargs: Any,
 ) -> MaskRCNN:
     """custom wrapper for PyTorch maskrcnn_resnet50_fpn_v2
@@ -386,4 +385,27 @@ def maskrcnn_mobile(
         mask_head=mask_head,
         **kwargs,
     )
+    return model
+
+def maskrcnn_resnetXt(name, num_classes, pretrained, res='normal'):
+    print('Using maskrcnn with {} backbone...'.format(name))
+
+    backbone = resnet_fpn_backbone(name, pretrained=pretrained, trainable_layers=5)
+
+
+    sizes = ((4,), (8,), (16,), (32,), (64,))
+    aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),) * len(sizes)
+    anchor_generator = AnchorGenerator(
+        sizes=sizes, aspect_ratios=aspect_ratios
+    )
+
+    roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=['0', '1', '2', '3'],
+                                                    output_size=7, sampling_ratio=2)
+
+
+    model = MaskRCNN(backbone, num_classes=num_classes,
+                    rpn_anchor_generator=anchor_generator, box_roi_pool=roi_pooler)
+
+    model.roi_heads.box_nms_thresh = 0.2
+    model.rpn.rpn_nms_thresh = 0.5
     return model

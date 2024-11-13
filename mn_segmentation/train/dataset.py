@@ -1,15 +1,21 @@
 import os
-import torch
-import numpy as np
-
-from torchvision.io import read_image
-from torchvision.ops.boxes import masks_to_boxes
-from torchvision import tv_tensors
-from torchvision.transforms.v2 import functional as F
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import torch
+from torchvision.io import read_image
+from torchvision.ops.boxes import masks_to_boxes
+from torchvision import tv_tensors
+from torchvision.transforms.v2 import functional as F
+from torchvision.transforms import v2 as T
+
+def get_transform(train):
+    transforms = []
+    if train:
+        transforms.append(T.RandomHorizontalFlip(0.5))
+    transforms.append(T.ToDtype(torch.float, scale=True))
+    transforms.append(T.ToPureTensor())
+    return T.Compose(transforms)
 
 def seperate_semantic_mask(mask):
   '''
