@@ -11,7 +11,7 @@ from torchvision.transforms import v2 as T
 from torchvision.ops import nms
 from torchvision.transforms.functional import pil_to_tensor
 
-import mn_segmentation.lib.cluster as cluster
+from mn_segmentation.lib import cluster
 from mn_segmentation.models.mask_rcnn import get_model_instance_segmentation
 
 def get_device():
