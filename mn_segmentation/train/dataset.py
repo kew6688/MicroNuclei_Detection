@@ -47,6 +47,13 @@ def seperate_semantic_mask(mask):
 
 
 class mnMaskDataset(torch.utils.data.Dataset):
+    '''
+    Load raw mask dataset, the mask is semantic brush label.
+
+    Args:
+        root: root directory of the dataset
+    '''
+        
     def __init__(self, root, transforms=None):
         self.root = root
         self.transforms = transforms
@@ -116,7 +123,15 @@ class mnMaskDataset(torch.utils.data.Dataset):
         return len(self.masks)
     
 class mnMaskFinalDataset(torch.utils.data.Dataset):
-    def __init__(self, root, transforms=None):
+    '''
+    Load refined mask dataset
+
+    Args:
+        root: root directory of the dataset
+    '''
+
+    def __init__(self, root, image_folder_name="images", mask_folder_name="final_masks", transforms=None):
+        
         self.root = root
         self.transforms = transforms
         # load all image files, sorting them to
