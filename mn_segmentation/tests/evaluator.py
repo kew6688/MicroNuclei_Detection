@@ -53,7 +53,7 @@ class Evaluator:
 
     self.precision = self.TP / (self.TP + self.FP)
     self.recall = self.TP / (self.TP + self.FN)
-    self.f1 = 2 * self.precision * self.recall / (self.precision + self.recall)
+    self.f1 = 2 * self.precision * self.recall / (self.precision + self.recall) if self.precision + self.recall != 0 else -1
     print(f"precision: {self.precision}")
     print(f"recall: {self.recall}")
     print(f"f1: {self.f1}")
