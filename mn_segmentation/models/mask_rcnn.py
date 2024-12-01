@@ -152,6 +152,9 @@ def maskrcnn_resnet50_fpn(
     num_classes: Optional[int] = None,
     weights_backbone: Optional[ResNet50_Weights] = None,
     trainable_backbone_layers: Optional[int] = None,
+    c_rpn_nms = 0.5,
+    c_box_nms = 0.2,
+    c_anchor = True,
     **kwargs: Any,
 ) -> MaskRCNN:
     """custom wrapper for PyTorch maskrcnn_resnet50_fpn_v2
@@ -195,17 +198,18 @@ def maskrcnn_resnet50_fpn(
     ##############################################################
 
     #create a custom anchor_generator for the FPN
-    sizes = ((4,), (8,), (16,), (32,), (64,))
-    aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),) * len(sizes)
-    anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=aspect_ratios)
+    if c_anchor:
+        sizes = ((4,), (8,), (16,), (32,), (64,))
+        aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),) * len(sizes)
+        anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=aspect_ratios)
 
-    model.rpn.anchor_generator = anchor_generator
+        model.rpn.anchor_generator = anchor_generator
 
     # 256 because that's the number of features that FPN returns
     model.rpn.head = RPNHead(256, anchor_generator.num_anchors_per_location()[0])
     
     # custom RPN NMS
-    model.rpn.rpn_nms_thresh = 0.5
+    model.rpn.rpn_nms_thresh = c_rpn_nms
 
     # get the number of input features for the classifier
     in_features = model.roi_heads.box_predictor.cls_score.in_features
@@ -217,7 +221,7 @@ def maskrcnn_resnet50_fpn(
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 
     # custom box NMS
-    model.roi_heads.box_nms_thresh = 0.2
+    model.roi_heads.box_nms_thresh = c_box_nms
 
     # now get the number of input features for the mask classifier
     in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels

@@ -67,7 +67,7 @@ def countImage(image_path, model, device='cpu'):
 
 class Application:
   # object that takes a model and manage predictions
-  def __init__(self, weight=None, model=None, device=None):
+  def __init__(self, weight=None, model=None, device=None, mode=None):
     if not model:
       num_class = 2
       self.model = get_model_instance_segmentation(num_class)
@@ -81,6 +81,8 @@ class Application:
       self.device = device
 
     self.model.to(self.device)
+    
+    self.mode = mode
 
   def _predict(self, image):
     eval_transform = get_transform(train=False)

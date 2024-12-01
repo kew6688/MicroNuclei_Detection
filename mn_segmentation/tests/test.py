@@ -11,10 +11,12 @@ from mn_segmentation.lib.Application import Application
 
 from .evaluator import Evaluator
 
-def evaluate_mn_dataset(model, dataset_path, evaluator, nms_iou=0.2, conf=0.4, mask_conf=0.7, ap_iou=0.5):
+def evaluate_mn_dataset(model, dataset_path, evaluator, nms_iou=0.2, conf=0.4, mask_conf=0.7, ap_iou=0.5, mode=None):
   for file in tqdm(os.listdir(os.path.join(dataset_path,'final_masks'))[-100:]):
     # get final pred, may need customize model predict function
     im = Image.open(os.path.join(dataset_path,'images',file[:-4]+".png"))
+    if mode == 'grey':
+       im = im.convert('L')
     image = pil_to_tensor(im)
     pred = model._predict(image)
     pred_boxes,pred_masks,pred_scores = model._post_process(pred, conf)
