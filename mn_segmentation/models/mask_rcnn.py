@@ -205,8 +205,8 @@ def maskrcnn_resnet50_fpn(
 
         model.rpn.anchor_generator = anchor_generator
 
-    # 256 because that's the number of features that FPN returns
-    model.rpn.head = RPNHead(256, anchor_generator.num_anchors_per_location()[0])
+        # 256 because that's the number of features that FPN returns
+        model.rpn.head = RPNHead(256, anchor_generator.num_anchors_per_location()[0])
     
     # custom RPN NMS
     model.rpn.rpn_nms_thresh = c_rpn_nms
