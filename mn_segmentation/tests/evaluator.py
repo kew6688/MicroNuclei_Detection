@@ -48,11 +48,11 @@ class Evaluator:
       if self.pred_list[i][1]:
         correct += 1
       self.map += correct / (i + 1)
-    self.map /= self.predictions
+    self.map /= self.predictions if self.predictions != 0 else -1
     print(f"mAP: {self.map}")
 
-    self.precision = self.TP / (self.TP + self.FP)
-    self.recall = self.TP / (self.TP + self.FN)
+    self.precision = self.TP / (self.TP + self.FP) if self.TP + self.FP != 0 else -1
+    self.recall = self.TP / (self.TP + self.FN) if self.TP + self.FN != 0 else -1
     self.f1 = 2 * self.precision * self.recall / (self.precision + self.recall) if self.precision + self.recall != 0 else -1
     print(f"precision: {self.precision}")
     print(f"recall: {self.recall}")
