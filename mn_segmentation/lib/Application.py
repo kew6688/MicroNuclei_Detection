@@ -12,7 +12,7 @@ from torchvision.ops import nms
 from torchvision.transforms.functional import pil_to_tensor
 
 from mn_segmentation.lib import cluster
-from mn_segmentation.models.mask_rcnn import get_model_instance_segmentation
+from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, MaskRCNN
 
 def get_device():
   if torch.cuda.is_available():
@@ -66,11 +66,32 @@ def countImage(image_path, model, device='cpu'):
   return mn_cnt
 
 class Application:
-  # object that takes a model and manage predictions
-  def __init__(self, weight=None, model=None, device=None, mode=None):
+  '''
+  Object that takes a model or weight and manage predictions.
+
+  Examples:
+
+    >>> from mn_segmentation.lib.Application import Application
+    >>> app = Application(checkpoint_path)
+    >>> cnt = app.predict_image_count(image)
+    >>> print(cnt)
+
+  Args:
+
+    weight (str): the checkpoint path to load the pre-tained weight for the model
+    model (MaskRCNN): directly take a model for prediction
+    device (str): the device for computation
+    mode (str): the usage of the app, expacting color of input
+  '''
+  
+  def __init__(self, 
+               weight: str = None, 
+               model: MaskRCNN = None, 
+               device: str = None, 
+               mode: str = None):
     if not model:
       num_class = 2
-      self.model = get_model_instance_segmentation(num_class)
+      self.model = maskrcnn_resnet50_fpn(weights=None,num_classes=num_class)
       load_weight(self.model, weight)
     else:
       self.model = model

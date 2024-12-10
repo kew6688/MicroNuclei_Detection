@@ -152,6 +152,9 @@ def maskrcnn_resnet50_fpn(
     num_classes: Optional[int] = None,
     weights_backbone: Optional[ResNet50_Weights] = None,
     trainable_backbone_layers: Optional[int] = None,
+    # custom iou
+    rpn_fg_iou_thresh=0.5,
+    rpn_bg_iou_thresh=0.5,
     c_rpn_nms = 0.5,
     c_box_nms = 0.2,
     c_anchor = True,
@@ -459,7 +462,7 @@ class SwinBackboneWithFPN(nn.Module):
         return x
 
 
-def maskrcnn_swin(name='swin', num_classes=2, res='normal'):
+def maskrcnn_swin(name='swin', num_classes=2):
     print('Using maskrcnn with {} backbone...'.format(name))
 
     # Load pre-trained Swin Transformer from timm
