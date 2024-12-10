@@ -140,6 +140,57 @@ class MaskRCNN_ResNet50_FPN_V2_Weights(WeightsEnum):
     )
     DEFAULT = COCO_V1
 
+@handle_legacy_interface(
+    weights=("pretrained", MaskRCNN_ResNet50_FPN_V2_Weights.COCO_V1),
+    weights_backbone=("pretrained_backbone", ResNet50_Weights.IMAGENET1K_V1),
+)
+def maskrcnn_resnet50_fpn_v2(
+    *,
+    weights: None,
+    progress: bool = True,
+    num_classes: Optional[int] = None,
+    weights_backbone: Optional[ResNet50_Weights] = None,
+    trainable_backbone_layers: Optional[int] = None,
+    **kwargs: Any,
+) -> MaskRCNN:
+    """custom wrapper for PyTorch maskrcnn_resnet50_fpn_v2
+        change ROI_generator and hyperparameters.
+    """
+    weights = MaskRCNN_ResNet50_FPN_V2_Weights.verify(weights)
+    weights_backbone = ResNet50_Weights.verify(weights_backbone)
+
+    if weights is not None:
+        weights_backbone = None
+        num_classes = _ovewrite_value_param("num_classes", num_classes, len(weights.meta["categories"]))
+    elif num_classes is None:
+        num_classes = 91
+
+    is_trained = weights is not None or weights_backbone is not None
+    trainable_backbone_layers = _validate_trainable_layers(is_trained, trainable_backbone_layers, 5, 3)
+
+    backbone = resnet50(weights=weights_backbone, progress=progress)
+    backbone = _resnet_fpn_extractor(backbone, trainable_backbone_layers, norm_layer=nn.BatchNorm2d)
+    rpn_anchor_generator = _default_anchorgen()
+    rpn_head = RPNHead(backbone.out_channels, rpn_anchor_generator.num_anchors_per_location()[0], conv_depth=2)
+    box_head = FastRCNNConvFCHead(
+        (backbone.out_channels, 7, 7), [256, 256, 256, 256], [1024], norm_layer=nn.BatchNorm2d
+    )
+    mask_head = MaskRCNNHeads(backbone.out_channels, [256, 256, 256, 256], 1, norm_layer=nn.BatchNorm2d)
+    model = MaskRCNN(
+        backbone,
+        num_classes=num_classes,
+        rpn_anchor_generator=rpn_anchor_generator,
+        rpn_head=rpn_head,
+        box_head=box_head,
+        mask_head=mask_head,
+        **kwargs,
+    )
+
+    if weights is not None:
+        model.load_state_dict(weights.get_state_dict(progress=progress, check_hash=True))
+
+    return model
+
 
 @handle_legacy_interface(
     weights=("pretrained", MaskRCNN_ResNet50_FPN_V2_Weights.COCO_V1),
@@ -160,9 +211,6 @@ def maskrcnn_resnet50_fpn(
     c_anchor = True,
     **kwargs: Any,
 ) -> MaskRCNN:
-    """custom wrapper for PyTorch maskrcnn_resnet50_fpn_v2
-        change ROI_generator and hyperparameters.
-    """
     weights = MaskRCNN_ResNet50_FPN_V2_Weights.verify(weights)
     weights_backbone = ResNet50_Weights.verify(weights_backbone)
 
@@ -507,6 +555,54 @@ def maskrcnn_swin(name='swin', num_classes=2):
     model.roi_heads.box_nms_thresh = 0.2
     model.rpn.rpn_nms_thresh = 0.5
     return model
+
+def get_mn_model(
+        num_classes=2,   
+        rpn_fg_iou_thresh=0.5,
+        rpn_bg_iou_thresh=0.5,
+        c_rpn_nms = 0.5,
+        c_box_nms = 0.2,
+        c_anchor = True,
+        hidden_layer=256):
+    
+    """custom wrapper for PyTorch maskrcnn_resnet50_fpn_v2
+        change ROI_generator and hyperparameters.
+    """
+
+    # load an instance segmentation model pre-trained on COCO
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn_v2(weights=None, rpn_fg_iou_thresh=rpn_fg_iou_thresh, rpn_bg_iou_thresh=rpn_bg_iou_thresh)
+
+    #create a custom anchor_generator for the FPN
+    if c_anchor:
+        sizes = ((4,), (8,), (16,), (32,), (64,))
+        aspect_ratios = ((0.25, 0.5, 1.0, 2.0, 4.0),) * len(sizes)
+        anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=aspect_ratios)
+
+        model.rpn.anchor_generator = anchor_generator
+
+        # 256 because that's the number of features that FPN returns
+        model.rpn.head = RPNHead(256, anchor_generator.num_anchors_per_location()[0])
+    
+    # custom RPN NMS
+    model.rpn.rpn_nms_thresh = c_rpn_nms
+
+    # get the number of input features for the classifier
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
+
+    # replace the pre-trained head with a new one
+    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+
+    # custom box NMS
+    model.roi_heads.box_nms_thresh = c_box_nms
+
+    # now get the number of input features for the mask classifier
+    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
+
+    # and replace the mask predictor with a new one
+    model.roi_heads.mask_predictor = MaskRCNNPredictor(in_features_mask,
+                                                    hidden_layer,num_classes)
+    return model
+
 
 
 def get_model_instance_segmentation(num_classes):

@@ -12,7 +12,7 @@ from torchvision.ops import nms
 from torchvision.transforms.functional import pil_to_tensor
 
 from mn_segmentation.lib import cluster
-from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, MaskRCNN
+from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, get_mn_model, MaskRCNN
 
 def get_device():
   if torch.cuda.is_available():
@@ -90,8 +90,7 @@ class Application:
                device: str = None, 
                mode: str = None):
     if not model:
-      num_class = 2
-      self.model = maskrcnn_resnet50_fpn(weights=None,num_classes=num_class)
+      self.model = get_mn_model()
       load_weight(self.model, weight)
     else:
       self.model = model
