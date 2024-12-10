@@ -10,6 +10,7 @@ import torch
 from torchvision.transforms import v2 as T
 from torchvision.ops import nms
 from torchvision.transforms.functional import pil_to_tensor
+from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 
 from mn_segmentation.lib import cluster
 from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, get_mn_model, MaskRCNN
@@ -21,7 +22,7 @@ def get_device():
     return torch.device('cpu')
 
 def load_weight(model, path):
-  model.load_state_dict(torch.load(path))
+  model.load_state_dict(torch.load(path,weights_only=True))
 
 def get_transform(train):
     transforms = []
@@ -75,6 +76,11 @@ class Application:
     >>> app = Application(checkpoint_path)
     >>> cnt = app.predict_image_count(image)
     >>> print(cnt)
+
+    predict_image_mask():
+    predict_image_info():
+    predict_image_count():
+    predict_display():
 
   Args:
 
@@ -142,8 +148,8 @@ class Application:
   def _untile_output(self, image_path):
     pass
 
-  def predict_image_count(self, image, resolveApop=True, conf=0.5, footer=False):
-    im = Image.open(image)
+  def predict_image_count(self, image_path, resolveApop=True, conf=0.7, footer_skip=False):
+    im = Image.open(image_path)
     mn_cnt = 0
 
     # crop image to model input size 224x224
@@ -153,8 +159,8 @@ class Application:
     # calculate how many rows and cols to cover the image
     for i in range(height // wnd_sz + 1):
       for j in range(width // wnd_sz + 1):
-        # skip footer, only for internal use on image with footer note
-        if footer and i in [4,9,29]: continue
+        # skip footer in Kate's images, row and col is 5x7
+        if footer_skip and i*7+j in [28,29,33,34]: continue
 
         # tile image
         cur_x, cur_y = wnd_sz * j, wnd_sz * i
@@ -171,8 +177,8 @@ class Application:
           mn_cnt += len(pred_boxes)
     return mn_cnt
   
-  def predict_image_info(self, image, conf=0.4):
-    im = Image.open(image)
+  def predict_image_info(self, image_path, conf=0.7, footer_skip=False):
+    im = Image.open(image_path)
     output = {"coord":[], "area":[], "bbox":[]}
 
     # crop image to model input size 224x224
@@ -182,8 +188,8 @@ class Application:
     # calculate how many rows and cols to cover the image
     for i in range(height // wnd_sz + 1):
       for j in range(width // wnd_sz + 1):
-        # skip footer
-        if i in [4,9,29]: continue
+        # skip footer in Kate's images, row and col is 5x7
+        if footer_skip and i*7+j in [28,29,33,34]: continue
 
         # tile image
         cur_x, cur_y = wnd_sz * j, wnd_sz * i
@@ -203,8 +209,8 @@ class Application:
         output["area"] += area.cpu().numpy().tolist()
     return output
   
-  def predict_image_mask(self, image, conf=0.7, footer=True, bbox_nms_thresh=0.2):
-    im = Image.open(image)
+  def predict_image_mask(self, image_path, conf=0.7, bbox_nms_thresh=0.2):
+    im = Image.open(image_path)
     image_height, image_width = np.array(im).shape[:2]
 
     # Create an empty array of the same size as the image to hold the masks
@@ -219,8 +225,6 @@ class Application:
     # calculate how many rows and cols to cover the image
     for i in range(height // wnd_sz):
       for j in range(width // wnd_sz):
-        # skip footer
-        if footer and i in [4,9,29]: continue
 
         # tile image
         wnd_sz = 224
@@ -230,11 +234,37 @@ class Application:
         image = pil_to_tensor(im.crop(box))
         pred = self._predict(image)
 
-        pred_boxes, pred_masks,_ = self._post_process(pred, conf,bbox_nms_thresh)
+        _, pred_masks,_ = self._post_process(pred, conf,bbox_nms_thresh)
         pred_masks = pred_masks.cpu().numpy().squeeze(1)
-        for i in range(pred_masks.shape[0]):
-          m = (pred_masks[i] > conf)
+        for mask_i in range(pred_masks.shape[0]):
+          m = (pred_masks[mask_i] > conf)
           output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
           mn_id += 1
     return output_mask
 
+  def predict_display(self, image_path, point, conf=0.7, bbox_nms_thresh=0.2):
+    # load image
+    im = Image.open(image_path)
+
+    # tile image
+    wnd_sz = 224
+    cur_x, cur_y = point
+    box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
+    image = pil_to_tensor(im.crop(box))
+    pred = self._predict(image)
+    pred_boxes,pred_masks,pred_scores = self._post_process(pred, 0.7)
+    pred_masks = pred_masks.cpu()
+    pred_scores = pred_scores.cpu().numpy()
+
+    image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
+    image = image[:3, ...]
+    pred_labels = [f"mn: {score:.3f}" for score in pred_scores]
+    pred_boxes = pred_boxes.long()
+
+    # draw the bounding boxes
+    output_image = draw_bounding_boxes(image, pred_boxes, pred_labels, colors="red")
+
+    masks = (pred_masks > 0.7).squeeze(1)
+    output_image = draw_segmentation_masks(output_image, masks, alpha=0.7, colors="blue")
+
+    return output_image
