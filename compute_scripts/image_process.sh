@@ -13,43 +13,51 @@
 echo "Create a virtual env to run"
 # ---------------------------------------------------------------------------------------------
 
+# cd $SLURM_TMPDIR
+
 # module load python/3.12
 # virtualenv --no-download $SLURM_TMPDIR/env
 # source $SLURM_TMPDIR/env/bin/activate
 # pip install --no-index --upgrade pip
 
+# pip install --no-index -r requirements.txt
 
 # ---------------------------------------------------------------------------------------------
 echo "Install SAM2"
 # ---------------------------------------------------------------------------------------------
 
+# install SAM2
+# cd $SLURM_TMPDIR
 # git clone https://github.com/facebookresearch/sam2.git
-# cd /home/y3229wan/projects/def-sushant/y3229wan/mn-project/sam
+# cd sam2
 # pip install --no-index -e .
+
+# download checkpoints
 # cd checkpoints && \
 # ./download_ckpts.sh && \
 # cd ..
-
 
 # ---------------------------------------------------------------------------------------------
 echo "Install mn detection packge"
 # ---------------------------------------------------------------------------------------------
 
+# Install package
+# cd $SLURM_TMPDIR
 # git clone https://github.com/kew6688/MicroNuclei_Detection.git 
-# cd /home/y3229wan/projects/def-sushant/y3229wan/mn-project/MN
+# cd MicroNuclei_Detection
 # pip install --no-index -e .
 
+# Download checkpoints
+# git clone https://huggingface.co/kew1046/MaskRCNN-resnet50FPN
 
 # ---------------------------------------------------------------------------------------------
 echo "Prepare data"
 # ---------------------------------------------------------------------------------------------
 
-# cd $SLURM_TMPDIR
 # mkdir work
 # cd work
 # tar -xf /home/y3229wan/scratch/MCF10A.tar
 # Now do my computations here on the local disk using the contents of the extracted archive...
-
 
 # ---------------------------------------------------------------------------------------------
 echo "Start main process"

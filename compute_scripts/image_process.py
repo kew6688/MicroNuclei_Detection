@@ -15,6 +15,9 @@ os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 from mn_segmentation.lib.Application import Application
 
+from sam2.build_sam import build_sam2
+from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
+
 # select the device for computation
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -61,14 +64,6 @@ def show_anns(anns, borders=True):
             cv2.drawContours(img, contours, -1, (0, 0, 1, 0.4), thickness=1)
 
     ax.imshow(img)
-
-from sam2.build_sam import build_sam2
-from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
-
-checkpoint = "/home/y3229wan/projects/def-sushant/y3229wan/mn-project/sam/checkpoints/sam2.1_hiera_large.pt"
-model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
-
-sam2 = build_sam2(model_cfg, checkpoint, device=device, apply_postprocessing=False)
 
 # get mn_info
 def get_mn_info(image_path, model):
@@ -138,9 +133,13 @@ def run(folder, dst, mode="ALL"):
     # predict all the images and write into data frame
 
     # mn seg model
-    app = Application("MaskRCNN-resnet50FPN/maskrcnn-resnet50fpn.pt")
+    app = Application("./MicroNuclei_Detection/MaskRCNN-resnet50FPN/maskrcnn-resnet50fpn.pt")
 
     # nuc seg model
+    checkpoint = "./sam2/checkpoints/sam2.1_hiera_large.pt"
+    model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
+
+    sam2 = build_sam2(model_cfg, checkpoint, device=device, apply_postprocessing=False)
     mask_generator = SAM2AutomaticMaskGenerator(
         model=sam2,
         points_per_side=64,
