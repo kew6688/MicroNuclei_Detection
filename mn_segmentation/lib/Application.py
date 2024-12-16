@@ -22,7 +22,7 @@ def get_device():
     return torch.device('cpu')
 
 def load_weight(model, path):
-  model.load_state_dict(torch.load(path,weights_only=True))
+  model.load_state_dict(torch.load(path))
 
 def get_transform(train):
     transforms = []

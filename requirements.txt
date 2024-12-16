@@ -1,8 +1,8 @@
 # All the basic needs for this projects
 
-pytorch
+torch
 numpy
-PIL
+pillow
 matplotlib
-skimage
-cv2
+scikit-learn
+timm
