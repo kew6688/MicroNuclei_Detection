@@ -133,7 +133,7 @@ def run(folder, dst, mode="ALL"):
     # predict all the images and write into data frame
 
     # mn seg model
-    app = Application("./MicroNuclei_Detection/MaskRCNN-resnet50FPN/maskrcnn-resnet50fpn.pt")
+    app = Application("./MicroNuclei_Detection/checkpoints/maskrcnn-resnet50fpn.pt")
 
     # nuc seg model
     checkpoint = "./sam2/checkpoints/sam2.1_hiera_large.pt"
