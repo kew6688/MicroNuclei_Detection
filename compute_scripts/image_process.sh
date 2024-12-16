@@ -55,9 +55,17 @@ echo "Prepare data"
 echo "Start main process"
 # ---------------------------------------------------------------------------------------------
 
+# Run the main python script. 
+# The arguments should be 
+#       the folder for the input images (png, tif)
+#       the final json file name
+#       the process mode (ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei)
+# Example:
+#       >>> python image_process.sh /home/scratch/test test.json ALL
+
 python image_process.py \
     --src $1 \
-    --dst $2
+    --dst $2 \
     --mode $3
 
 echo $1
