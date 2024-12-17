@@ -21,7 +21,7 @@ The pre-trained models can be download from huggingface by ```git clone```:
 After downloading the model, the usage of the end-to-end pipeline is described below.
 
 ## Usage:
-Automated pipeline to process images. Further details will be add [here](www...)
+Automated pipeline to process images. Further details will be add.
  
  This includes 
  - predict counts of micronuclei
@@ -30,3 +30,13 @@ Automated pipeline to process images. Further details will be add [here](www...)
 
 Please refer to the examples in the [tutorial.ipynb](./notebooks/tutorial.ipynb) (open in [colab](https://colab.research.google.com/github/kew6688/MicroNuclei_Detection/blob/main/notebooks/tutorial.ipynb))
 
+Compute scripts are provided.
+```
+# Run the main python script.
+# The arguments should be
+#       the folder for the input images (png, tif)
+#       the final json file name
+#       the process mode (ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei)
+# Example:
+#       >>> python image_process.py /home/test test.json ALL
+```
