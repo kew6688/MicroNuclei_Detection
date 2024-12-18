@@ -18,11 +18,13 @@ from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, get_mn_model
 def get_device():
   if torch.cuda.is_available():
     return torch.device('cuda')
+  elif torch.backends.mps.is_available():
+    device = torch.device("mps")
   else:
     return torch.device('cpu')
 
 def load_weight(model, path):
-  model.load_state_dict(torch.load(path))
+  model.load_state_dict(torch.load(path, map_location=get_device()))
 
 def get_transform(train):
     transforms = []
@@ -32,7 +34,7 @@ def get_transform(train):
     transforms.append(T.ToPureTensor())
     return T.Compose(transforms)
 
-def countImage(image_path, model, device='cpu'):
+def countImage(image_path, model, device=get_device()):
   im = Image.open(image_path)
   mn_cnt = 0
   nuc_cnt = 0
