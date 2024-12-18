@@ -14,7 +14,16 @@ pip install -e .
 ```
 
 ## Model Checkpoints
-The pre-trained models can be download from huggingface by ```git clone```:
+
+First, we need to download a model checkpoint. All the model checkpoints can be downloaded by running:
+
+```
+cd checkpoints && \
+./download_ckpts.sh && \
+cd ..
+```
+
+The pre-trained models can be download from huggingface:
 - https://huggingface.co/kew1046/MaskRCNN-resnet50FPN
 - https://huggingface.co/kew1046/MaskRCNN-swinFPN
   
