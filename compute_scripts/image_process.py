@@ -67,13 +67,11 @@ def show_anns(anns, borders=True):
 
 # get mn_info
 def get_mn_info(image_path, model):
-  return model.predict_image_info(image_path) # TODO: change footer
+  return model.predict_image_info(image_path) 
 
 # get nuc_info
 def get_nuc_info(image_path, model):
   img = Image.open(image_path)
-  box = (0,0,1400,950) # TODO: change window size
-  img = img.crop(box)
   img = np.array(img.convert("RGB"))
   masks = model.generate(img)
 
