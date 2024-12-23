@@ -47,8 +47,17 @@ Compute scripts are provided.
 #       the final json file name
 #       the process mode (ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei)
 # Example:
-#       >>> python image_process.py /home/test test.json ALL
+#       >>> python image_process.py --src /home/test --dst test.json --mode ALL 
 ```
+
+### Parameters and Arguments
+| Parameter          | Short Form | Required | Default    | Type         | Description                                                                                       |
+|--------------------|------------|----------|------------|--------------|---------------------------------------------------------------------------------------------------|
+| `--src`            | `-s`       | Yes      | N/A        | String       | Pathway to image.                                                                                 |
+| `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
+| `--mode`           | `-mod`     | Yes      | N/A        | String       | mode for output. Options: `["MN", "NUC", "ALL"]`                                                  |
+| `--conf`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
+
 
 ## Project Structure:
 
