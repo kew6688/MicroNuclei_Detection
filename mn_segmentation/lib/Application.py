@@ -12,6 +12,7 @@ from torchvision.ops import nms
 from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 
+import mn_segmentation
 from mn_segmentation.lib import cluster
 from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, get_mn_model, MaskRCNN
 
@@ -97,7 +98,13 @@ class Application:
                mode: str = None):
     if not model:
       self.model = get_mn_model()
+
+      # Checkpoints are downloaded by the script provided in checkpoints folder by default
+      if weight == None:
+        weight = os.path.join(mn_segmentation.__path__[0], "../checkpoints/maskrcnn-resnet50fpn.pt")
+
       load_weight(self.model, weight)
+
     else:
       self.model = model
 
@@ -242,7 +249,17 @@ class Application:
           mn_id += 1
     return output_mask
 
-  def predict_display(self, image_path, point, conf=0.7, bbox_nms_thresh=0.2):
+  def predict_display(self, image_path: str, point: list[int, int], conf: int=0.7, bbox_nms_thresh: int=0.2) -> None:
+    '''
+    Display a part of image with predictions, include boxes, masks, and scores.
+
+    Args:
+      
+      image_path,
+      point: left corner of the window,
+      conf,
+      bbox_nms_thresh
+    '''
     # load image
     im = Image.open(image_path)
 
@@ -252,7 +269,7 @@ class Application:
     box = (cur_x, cur_y, cur_x + wnd_sz, cur_y + wnd_sz)
     image = pil_to_tensor(im.crop(box))
     pred = self._predict(image)
-    pred_boxes,pred_masks,pred_scores = self._post_process(pred, 0.7)
+    pred_boxes,pred_masks,pred_scores = self._post_process(pred, conf=conf, bbox_nms_thresh=bbox_nms_thresh)
     pred_masks = pred_masks.cpu()
     pred_scores = pred_scores.cpu().numpy()
 

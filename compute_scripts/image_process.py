@@ -66,8 +66,8 @@ def show_anns(anns, borders=True):
     ax.imshow(img)
 
 # get mn_info
-def get_mn_info(image_path, model):
-  return model.predict_image_info(image_path) # TODO: change footer
+def get_mn_info(image_path, model, conf=0.7):
+  return model.predict_image_info(image_path, conf=conf) # TODO: change footer
 
 # get nuc_info
 def get_nuc_info(image_path, model):
@@ -87,11 +87,11 @@ def get_nuc_info(image_path, model):
   return output
 
 # get image_info
-def get_image_info(image_path, nuc_model, mn_model, mode="ALL"):
+def get_image_info(image_path, nuc_model, mn_model, mode="ALL", conf=0.7):
     image_name = image_path.split("/")[-1]
 
     nuc_info = get_nuc_info(image_path, nuc_model) if mode=="ALL" or mode=="NUC" else None
-    mn_info = get_mn_info(image_path, mn_model) if mode=="ALL" or mode=="MN" else None
+    mn_info = get_mn_info(image_path, mn_model, conf=conf) if mode=="ALL" or mode=="MN" else None
 
     return {
         "image": image_name,
@@ -184,12 +184,14 @@ if __name__ == "__main__":
     parser.add_argument('--src', required=True, help='Source directory containing TIFF images.')
     parser.add_argument('--dst', required=True, help='Destination json file name for PNG images.')
     parser.add_argument('--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
+    parser.add_argument('--conf', required=False, help='confidence threshold for micronuclei detection')
 
     args = parser.parse_args()
     source_folder = args.src
     target_json = args.dst
     mode = args.mode
+    conf = args.conf if "conf" in args else 0.7
     
     if mode!="DEBUG":
-        run(folder=source_folder, dst=target_json, mode=mode)
+        run(folder=source_folder, dst=target_json, mode=mode, conf=conf)
 
