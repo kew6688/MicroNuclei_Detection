@@ -194,7 +194,7 @@ class Application:
     wnd_sz = 224
     height, width = np.array(im).shape[:2]
 
-    # calculate how many rows and cols to cover the image
+    # calculate how many rows and cols to cover the image, contain last row and col
     for i in range(height // wnd_sz + 1):
       for j in range(width // wnd_sz + 1):
         # skip footer in Kate's images, row and col is 5x7
@@ -231,7 +231,8 @@ class Application:
     wnd_sz = 224
     height, width = np.array(im).shape[:2]
 
-    # calculate how many rows and cols to cover the image
+    # calculate how many rows and cols to cover the image, 
+    # does not contain last row and col
     for i in range(height // wnd_sz):
       for j in range(width // wnd_sz):
 

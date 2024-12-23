@@ -179,10 +179,10 @@ def run(folder, dst, mode="ALL"):
 if __name__ == "__main__":
     # TODO: add resolution
     parser = argparse.ArgumentParser(description='Process images for detections.')
-    parser.add_argument('--src', required=True, help='Source directory containing TIFF images.')
-    parser.add_argument('--dst', required=True, help='Destination json file name for PNG images.')
-    parser.add_argument('--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
-    parser.add_argument('--conf', required=False, help='confidence threshold for micronuclei detection')
+    parser.add_argument('-s', '--src', required=True, help='Source directory containing TIFF images.')
+    parser.add_argument('-d', '--dst', required=True, help='Destination json file name for PNG images.')
+    parser.add_argument('-mod', '--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
+    parser.add_argument('-c', '--conf', required=False, help='confidence threshold for micronuclei detection')
 
     args = parser.parse_args()
     source_folder = args.src
