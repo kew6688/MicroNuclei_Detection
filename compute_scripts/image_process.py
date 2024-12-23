@@ -72,8 +72,6 @@ def get_mn_info(image_path, model, conf=0.7):
 # get nuc_info
 def get_nuc_info(image_path, model):
   img = Image.open(image_path)
-  box = (0,0,1400,950) # TODO: change window size
-  img = img.crop(box)
   img = np.array(img.convert("RGB"))
   masks = model.generate(img)
 
