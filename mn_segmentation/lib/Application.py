@@ -278,7 +278,7 @@ class Application:
 
     image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
     image = image[:3, ...]
-    pred_labels = [f"mn: {score:.3f}" for score in pred_scores] if print_labels else []
+    pred_labels = [f"mn: {score:.3f}" if print_labels else "" for score in pred_scores] 
     pred_boxes = pred_boxes.long()
 
     # draw the bounding boxes
