@@ -252,7 +252,7 @@ class Application:
           mn_id += 1
     return output_mask
 
-  def predict_display(self, image_path: str, point: list[int, int], conf: int=0.7, bbox_nms_thresh: int=0.2) -> None:
+  def predict_display(self, image_path: str, point: list[int, int], print_labels=True, conf: int=0.7, bbox_nms_thresh: int=0.2) -> None:
     '''
     Display a part of image with predictions, include boxes, masks, and scores.
 
@@ -278,7 +278,7 @@ class Application:
 
     image = (255.0 * (image - image.min()) / (image.max() - image.min())).to(torch.uint8)
     image = image[:3, ...]
-    pred_labels = [f"mn: {score:.3f}" for score in pred_scores]
+    pred_labels = [f"mn: {score:.3f}" for score in pred_scores] if print_labels else []
     pred_boxes = pred_boxes.long()
 
     # draw the bounding boxes
