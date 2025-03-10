@@ -15,6 +15,7 @@ os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 from mn_segmentation.lib.Application import Application
 from mn_segmentation.lib.image_encode import mask2rle
+from mn_segmentation.lib.assign_parent import add_parents
 
 from sam2.build_sam import build_sam2
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
@@ -79,7 +80,7 @@ def get_nuc_info(image_path, model):
   output = {"coord":[], "area":[], "bbox":[], "score":[], "mask":[]}
   output["height"] = img.shape[0]
   output["width"] = img.shape[1]
-  
+
   for ann in masks[1:]:
     if ann['area'] > 30:
       x,y,w,h = ann['bbox']
@@ -103,37 +104,7 @@ def get_image_info(image_path, nuc_model, mn_model, mode="ALL", conf=0.7):
         "micronuclei": mn_info
     }
 
-def assign_parent_nuc(nuc_coord, mn_coord):
-  '''
-  assign parent nuc to mn
-
-  Parameter:
-    nuc_pos: list of coords [[x,y],...]
-
-  Return:
-    ind: index of parent nuc for each mn
-  '''
-  ind = []
-  for x1,y1 in mn_coord:
-    min_dist = float('inf')
-    min_ind = -1
-    for i, c in enumerate(nuc_coord):
-      x2,y2 = c
-      dist = (x1-x2)**2 + (y1-y2)**2
-      if dist < min_dist:
-        min_dist = dist
-        min_ind = i
-    ind.append(min_ind)
-  return ind
-
-def add_parents(data):
-  for i in range(len(data)):
-    nuc_coord = data[i]['nuclei']['coord']
-    mn_coord = data[i]['micronuclei']['coord']
-    ind = assign_parent_nuc(nuc_coord, mn_coord)
-    data[i]['micronuclei']['parent'] = ind
-
-def run(folder, dst, mode="ALL"):
+def run(folder, dst, parent, conf, mode="ALL"):
     # predict all the images and write into data frame
 
     # mn seg model
@@ -167,7 +138,7 @@ def run(folder, dst, mode="ALL"):
         image_path = os.path.join(folder,image_name)
 
         start = time.time()
-        info = get_image_info(image_path, mask_generator, app, mode=mode)
+        info = get_image_info(image_path, mask_generator, app, mode=mode, conf=conf)
         t += time.time() - start
         cnt += 1
 
@@ -177,7 +148,7 @@ def run(folder, dst, mode="ALL"):
 
     # assign mn parent
     if mode=="ALL":
-        add_parents(pred)
+        add_parents(pred, parent)
 
     with open(dst, "w") as outfile:
         json.dump(pred, outfile)
@@ -197,7 +168,8 @@ if __name__ == "__main__":
     target_json = args.dst
     mode = args.mode
     conf = args.conf if "conf" in args else 0.7
+    par = args.parent if "parent" in args else "edge"
     
     if mode!="DEBUG":
-        run(folder=source_folder, dst=target_json, mode=mode, conf=conf)
+        run(folder=source_folder, dst=target_json, mode=mode, conf=conf, parent=par)
 

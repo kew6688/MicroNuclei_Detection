@@ -57,7 +57,12 @@ Compute scripts are provided.
 | `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
 | `--mode`           | `-mod`     | Yes      | N/A        | String       | mode for output. Options: `["MN", "NUC", "ALL"]`                                                  |
 | `--conf`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
+| `--out`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
+| `--conf`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
 
+
+    parser.add_argument('-c', '--conf', required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.4')
+    parser.add_argument('-o', '--out', required=False, help='Output format is contained mask (full) or only box (short), e.g. -o full/short')
 
 ## Project Structure:
 
@@ -143,3 +148,11 @@ For each info:
                         for nuc bbox: (x, y, w, h) 
       "parent": [id,...]       # assigned parent nuclei, mn only
 }
+
+
+## Updates
+2025/3/10:
+- Add output predictions' mask and confidence
+- Add flag for output format
+- Add new parent assign method
+- Add flag for parent method

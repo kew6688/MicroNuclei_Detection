@@ -14,6 +14,7 @@ from torchvision.utils import draw_bounding_boxes, draw_segmentation_masks
 
 import mn_segmentation
 from mn_segmentation.lib import cluster
+from mn_segmentation.lib.image_encode import mask2rle
 from mn_segmentation.models.mask_rcnn import maskrcnn_resnet50_fpn, get_mn_model, MaskRCNN
 
 def get_device():
@@ -188,11 +189,15 @@ class Application:
   
   def predict_image_info(self, image_path, conf=0.7, footer_skip=False):
     im = Image.open(image_path)
-    output = {"coord":[], "area":[], "bbox":[]}
+
+    output = {"coord":[], "area":[], "bbox":[], "score":[], "mask":[]}
 
     # crop image to model input size 224x224
     wnd_sz = 224
     height, width = np.array(im).shape[:2]
+
+    output["height"] = height
+    output["width"] = width
 
     # calculate how many rows and cols to cover the image, contain last row and col
     for i in range(height // wnd_sz + 1):
@@ -207,7 +212,7 @@ class Application:
         image = pil_to_tensor(im.crop(box))
         pred = self._predict(image)
 
-        pred_boxes, pred_masks,_ = self._post_process(pred, conf)
+        pred_boxes, pred_masks, pred_scores= self._post_process(pred, conf)
         pred_boxes[:, [0,2]] += cur_x
         pred_boxes[:, [1,3]] += cur_y
         area = pred_masks.sum(1).sum(1).sum(1)
@@ -216,6 +221,19 @@ class Application:
         output["bbox"] += pred_boxes.cpu().numpy().tolist()
         output["coord"] += cluster.boxToCenters(pred_boxes).tolist()
         output["area"] += area.cpu().numpy().tolist()
+        output["score"] += pred_scores.cpu().numpy().tolist()
+
+        pred_masks = pred_masks.cpu().numpy().squeeze(1)
+        for mask_i in range(pred_masks.shape[0]):
+          # Create an empty array of the same size as the image to hold the masks
+          output_mask = np.zeros((height, width), dtype=np.uint8)
+
+          m = (pred_masks[mask_i] > conf).astype(int)
+          output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = 1
+
+          rle = mask2rle(output_mask)
+          output["mask"].append(rle)
+
     return output
   
   def predict_image_mask(self, image_path, conf=0.7, bbox_nms_thresh=0.2):
