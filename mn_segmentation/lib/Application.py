@@ -223,7 +223,7 @@ class Application:
         output["area"] += area.cpu().numpy().tolist()
         output["score"] += pred_scores.cpu().numpy().tolist()
 
-        pred_masks = pred_masks.cpu().numpy().squeeze(1)
+        pred_masks = pred_masks.cpu().type(torch.float32).numpy().squeeze(1)
         for mask_i in range(pred_masks.shape[0]):
           # Create an empty array of the same size as the image to hold the masks
           output_mask = np.zeros((height, width), dtype=np.uint8)
@@ -263,7 +263,7 @@ class Application:
         pred = self._predict(image)
 
         _, pred_masks,_ = self._post_process(pred, conf,bbox_nms_thresh)
-        pred_masks = pred_masks.cpu().numpy().squeeze(1)
+        pred_masks = pred_masks.cpu().type(torch.float32).numpy().squeeze(1)
         for mask_i in range(pred_masks.shape[0]):
           m = (pred_masks[mask_i] > conf)
           output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id

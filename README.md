@@ -146,9 +146,17 @@ For each info:
       "bbox": [...],         # list of bounding box, 
                         for mn bbox: (xmin, ymin, xmax, ymax)
                         for nuc bbox: (x, y, w, h) 
+      "score": [x,...],     # list of prediction scores for each object
+      "mask": [[...],...]    # list of rle encoding list for each object
       "parent": [id,...]       # assigned parent nuclei, mn only
 }
-
+```
+Note: RLE encoding and decoding functions can be find in 
+```
+from mn_segmentation.lib.image_encode import mask2rle, rle_to_mask
+rle = mask2rle(mask)
+mask = rle_to_mask(rle,original_height,original_width)
+```
 
 ## Updates
 2025/3/10:
