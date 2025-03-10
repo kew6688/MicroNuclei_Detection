@@ -228,7 +228,7 @@ class Application:
           # Create an empty array of the same size as the image to hold the masks
           output_mask = np.zeros((height, width), dtype=np.uint8)
 
-          m = (pred_masks[mask_i] > conf).astype(int)
+          m = (pred_masks[mask_i] > conf)
           output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = 1
 
           rle = mask2rle((output_mask>0).astype(int))
