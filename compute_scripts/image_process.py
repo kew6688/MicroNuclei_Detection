@@ -14,6 +14,7 @@ print("CUDA is available:", torch.cuda.is_available())
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 from mn_segmentation.lib.Application import Application
+from mn_segmentation.lib.image_encode import mask2rle
 
 from sam2.build_sam import build_sam2
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
@@ -67,7 +68,7 @@ def show_anns(anns, borders=True):
 
 # get mn_info
 def get_mn_info(image_path, model, conf=0.7):
-  return model.predict_image_info(image_path, conf=conf) # TODO: change footer
+  return model.predict_image_info(image_path, conf=conf) 
 
 # get nuc_info
 def get_nuc_info(image_path, model):
@@ -75,13 +76,18 @@ def get_nuc_info(image_path, model):
   img = np.array(img.convert("RGB"))
   masks = model.generate(img)
 
-  output = {"coord":[], "area":[], "bbox":[]}
+  output = {"coord":[], "area":[], "bbox":[], "score":[], "mask":[]}
+  output["height"] = img.shape[0]
+  output["width"] = img.shape[1]
+  
   for ann in masks[1:]:
     if ann['area'] > 30:
       x,y,w,h = ann['bbox']
       output["coord"].append([x+w//2, y+h//2])
       output["area"].append(ann['area'])
       output["bbox"].append(ann['bbox'])
+      output["score"].append(ann['stability_score'])
+      output["mask"].append(mask2rle(ann['segmentation'].astype(int)))
   return output
 
 # get image_info
@@ -182,7 +188,9 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--src', required=True, help='Source directory containing TIFF images.')
     parser.add_argument('-d', '--dst', required=True, help='Destination json file name for PNG images.')
     parser.add_argument('-mod', '--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
-    parser.add_argument('-c', '--conf', required=False, help='confidence threshold for micronuclei detection')
+    parser.add_argument('-c', '--conf', required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
+    parser.add_argument('-o', '--out', required=False, help='Output format is contained mask (full) or only box (short), e.g. -o full/short (full by default)')
+    parser.add_argument('-p', '--parent', required=False, help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')
 
     args = parser.parse_args()
     source_folder = args.src
