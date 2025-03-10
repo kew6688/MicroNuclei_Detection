@@ -81,8 +81,14 @@ def get_nuc_info(image_path, model):
   output["height"] = img.shape[0]
   output["width"] = img.shape[1]
 
-  for ann in masks[1:]:
-    if ann['area'] > 30:
+  cur = 0
+  for i in range(len(masks)):
+    if masks[i]["area"] > cur:
+      bg = i 
+      cur = masks[i]["area"]
+
+  for i,ann in enumerate(masks):
+    if ann['area'] > 40 and i != bg:
       x,y,w,h = ann['bbox']
       output["coord"].append([x+w//2, y+h//2])
       output["area"].append(ann['area'])

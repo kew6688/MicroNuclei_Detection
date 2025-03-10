@@ -231,7 +231,7 @@ class Application:
           m = (pred_masks[mask_i] > conf).astype(int)
           output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = 1
 
-          rle = mask2rle(output_mask)
+          rle = mask2rle((output_mask>0).astype(int))
           output["mask"].append(rle)
 
     return output
