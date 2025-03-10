@@ -56,13 +56,11 @@ Compute scripts are provided.
 | `--src`            | `-s`       | Yes      | N/A        | String       | Pathway to image.                                                                                 |
 | `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
 | `--mode`           | `-mod`     | Yes      | N/A        | String       | mode for output. Options: `["MN", "NUC", "ALL"]`                                                  |
-| `--conf`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
-| `--out`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
-| `--conf`           | `-c`       | No       | N/A        | Float        | conf threshold for model prediction.                                                              |
+| `--conf`           | `-c`       | No       | N/A        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
+| `--out`            | `-o`       | No       | N/A        | Float        | Output format is contained mask (full) or only box (short), e.g. -o full/short                     |
+| `--parent`         | `-p`       | No       | N/A        | Float        | Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)   |
 
 
-    parser.add_argument('-c', '--conf', required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.4')
-    parser.add_argument('-o', '--out', required=False, help='Output format is contained mask (full) or only box (short), e.g. -o full/short')
 
 ## Project Structure:
 
@@ -142,13 +140,14 @@ For each info:
 
 {
       "coord": [[x1, y1],...],   `# list of center coordinates
-      "area": [x,...],        # list of mask area
-      "bbox": [...],         # list of bounding box, 
-                        for mn bbox: (xmin, ymin, xmax, ymax)
-                        for nuc bbox: (x, y, w, h) 
-      "score": [x,...],     # list of prediction scores for each object
-      "mask": [[...],...]    # list of rle encoding list for each object
-      "parent": [id,...]       # assigned parent nuclei, mn only
+      "area": [x,...],            # list of mask area
+      "bbox": [...],              # list of bounding box, 
+                                    for mn bbox: (xmin, ymin, xmax, ymax)
+                                    for nuc bbox: (x, y, w, h) 
+      "score": [x,...],           # list of prediction scores for each object
+      "mask": [[...],...]         # list of rle encoding list for each object
+
+      "parent": [id,...]          # assigned parent nuclei, mn only
 }
 ```
 Note: RLE encoding and decoding functions can be find in 
@@ -161,6 +160,5 @@ mask = rle_to_mask(rle,original_height,original_width)
 ## Updates
 2025/3/10:
 - Add output predictions' mask and confidence
-- Add flag for output format
 - Add new parent assign method
-- Add flag for parent method
+- Add flag for output format and parent method
