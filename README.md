@@ -30,7 +30,7 @@ The pre-trained models can be download from huggingface:
 After downloading the model, the usage of the end-to-end pipeline is described below.
 
 ## Usage:
-Automated pipeline to process images. Further details will be add.
+Automated pipeline to process images. 
  
  This includes 
  - predict counts of micronuclei
@@ -49,6 +49,9 @@ Compute scripts are provided.
 # Example:
 #       >>> python image_process.py --src /home/test --dst test.json --mode ALL 
 ```
+**Input**: The model expects 8-bit RGB images without any text labels. The training data is 20x magnificent.
+
+**Output**: can be found in the [output](#output-format) section
 
 ### Parameters and Arguments
 | Parameter          | Short Form | Required | Default    | Type         | Description                                                                                       |
@@ -56,9 +59,9 @@ Compute scripts are provided.
 | `--src`            | `-s`       | Yes      | N/A        | String       | Pathway to image.                                                                                 |
 | `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
 | `--mode`           | `-mod`     | Yes      | N/A        | String       | mode for output. Options: `["MN", "NUC", "ALL"]`                                                  |
-| `--conf`           | `-c`       | No       | N/A        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
-| `--out`            | `-o`       | No       | N/A        | Float        | Output format is contained mask (full) or only box (short), e.g. -o full/short                     |
-| `--parent`         | `-p`       | No       | N/A        | Float        | Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)   |
+| `--conf`           | `-c`       | No       | 0.7        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
+| `--out`            | `-o`       | No       | full        | Float        | Output format is contained mask (full) or only box (short), e.g. -o full/short                     |
+| `--parent`         | `-p`       | No       | edge        | Float        | Parent assign method, use closest center or edge to find nearest parent nuclei (edge/center)   |
 
 
 
