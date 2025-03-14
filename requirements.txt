@@ -6,4 +6,5 @@ pillow
 matplotlib
 scikit-learn
 timm
-cv2
+opencv-python
+
