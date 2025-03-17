@@ -96,7 +96,12 @@ def get_image_info(image_path, nuc_model, mn_model, mode="ALL", conf=0.7):
     }
 
 def run(folder, dst, parent, conf, mode="ALL"):
-    # predict all the images and write into data frame
+    '''
+    Predict all the images and write into data frame
+    '''
+    
+    if not conf or not isinstance(conf, float):
+      conf = 0.7
 
     # mn seg model
     app = Application("./MicroNuclei_Detection/checkpoints/maskrcnn-resnet50fpn.pt")
