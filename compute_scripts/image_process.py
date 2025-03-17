@@ -45,34 +45,13 @@ elif device.type == "mps":
 
 np.random.seed(3)
 
-def show_anns(anns, borders=True):
-    if len(anns) == 0:
-        return
-    sorted_anns = sorted(anns, key=(lambda x: x['area']), reverse=True)
-    ax = plt.gca()
-    ax.set_autoscale_on(False)
-
-    img = np.ones((sorted_anns[0]['segmentation'].shape[0], sorted_anns[0]['segmentation'].shape[1], 4))
-    img[:, :, 3] = 0
-    for ann in sorted_anns:
-        m = ann['segmentation']
-        color_mask = np.concatenate([np.random.random(3), [0.5]])
-        img[m] = color_mask
-        if borders:
-            import cv2
-            contours, _ = cv2.findContours(m.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            # Try to smooth contours
-            contours = [cv2.approxPolyDP(contour, epsilon=0.01, closed=True) for contour in contours]
-            cv2.drawContours(img, contours, -1, (0, 0, 1, 0.4), thickness=1)
-
-    ax.imshow(img)
 
 # get mn_info
 def get_mn_info(image_path, model, conf=0.7):
   return model.predict_image_info(image_path, conf=conf) 
 
 # get nuc_info
-def get_nuc_info(image_path, model):
+def get_nuc_info(image_path, model, nuc_thresh):
   img = Image.open(image_path)
   img = np.array(img.convert("RGB"))
   masks = model.generate(img)
@@ -88,7 +67,7 @@ def get_nuc_info(image_path, model):
       cur = masks[i]["area"]
 
   for i,ann in enumerate(masks):
-    if ann['area'] > 100 and i != bg:
+    if ann['area'] > nuc_thresh and i != bg:
       x,y,w,h = ann['bbox']
       output["coord"].append([x+w//2, y+h//2])
       output["area"].append(ann['area'])
@@ -101,8 +80,14 @@ def get_nuc_info(image_path, model):
 def get_image_info(image_path, nuc_model, mn_model, mode="ALL", conf=0.7):
     image_name = image_path.split("/")[-1]
 
-    nuc_info = get_nuc_info(image_path, nuc_model) if mode=="ALL" or mode=="NUC" else None
     mn_info = get_mn_info(image_path, mn_model, conf=conf) if mode=="ALL" or mode=="MN" else None
+    if mn_info:
+       # set the threshhold for nuclei size as the largest micronuclei, at least 100
+       nuc_thresh = max(100, max(mn_info["area"]))
+    else:
+       nuc_thresh = 100
+
+    nuc_info = get_nuc_info(image_path, nuc_model, nuc_thresh) if mode=="ALL" or mode=="NUC" else None
 
     return {
         "image": image_name,

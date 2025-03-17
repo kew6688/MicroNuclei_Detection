@@ -132,10 +132,20 @@ class Application:
     return pred
   
   def _post_process(self, pred, conf=0.4, bbox_nms_thresh=0.2):
+    '''
+    NMS after prediction, to remove duplicate boxes
+    '''
+
     ind = nms(pred["boxes"], pred["scores"], bbox_nms_thresh)
     # print(ind)
+
     pred_boxes = pred["boxes"].long()
-    return pred_boxes[ind][pred["scores"][ind]>conf], pred["masks"][ind][pred["scores"][ind]>conf], pred["scores"][ind][pred["scores"][ind]>conf]
+    
+    if not conf or not isinstance(conf, float):
+      conf = 0.4
+
+    valid = pred["scores"][ind]>conf
+    return pred_boxes[ind][valid], pred["masks"][ind][valid], pred["scores"][ind][valid]
 
   def _tile_input(self, image_path, wnd_sz = 224):
     '''
