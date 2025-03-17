@@ -13,6 +13,13 @@ git clone https://github.com/kew6688/MicroNuclei_Detection.git && cd MicroNuclei
 pip install -e .
 ```
 
+In order to fully utilize the pipeline, we need to integrated with SAM2 for nuclei segmentation. The installation can be found here:
+```
+git clone https://github.com/facebookresearch/sam2.git
+cd sam2
+pip install -e .
+```
+
 ## Model Checkpoints
 
 First, we need to download a model checkpoint. All the model checkpoints can be downloaded by running:
