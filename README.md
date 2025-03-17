@@ -4,7 +4,7 @@
 
 
 ## Installation
-This tool need to be installed before use. All the requirements are in `requirements.txt`. Please install pytorch and torchvision dependencies. 
+This tool need to be installed before use. All the requirements are in `requirements.txt` (for compute canada, use `requirements.txt`). Please install pytorch and torchvision dependencies. 
 
 You can install this tool on a GPU machine using:
 
@@ -60,8 +60,8 @@ Compute scripts are provided.
 | `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
 | `--mode`           | `-mod`     | Yes      | N/A        | String       | mode for output. Options: `["MN", "NUC", "ALL"]`                                                  |
 | `--conf`           | `-c`       | No       | 0.7        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
-| `--out`            | `-o`       | No       | full        | Float        | Output format is contained mask (full) or only box (short), e.g. -o full/short                     |
-| `--parent`         | `-p`       | No       | edge        | Float        | Parent assign method, use closest center or edge to find nearest parent nuclei (edge/center)   |
+| `--out`            | `-o`       | No       | "full"        | String        | Output format is contained mask (full) or only box (short), Options: `["full", "short"]`                     |
+| `--parent`         | `-p`       | No       | "edge"        | String        | Parent assign method, use closest center or edge to find nearest parent nuclei, Options: `["center", "edge"]`   |
 
 
 
