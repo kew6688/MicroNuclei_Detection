@@ -30,7 +30,7 @@ git clone https://github.com/facebookresearch/sam2.git
 cd sam2
 pip install -e .
 
-# download checkpoints
+# download checkpoints for sam2 under folder /sam2
 cd checkpoints && \
 ./download_ckpts.sh && \
 cd ..
@@ -43,7 +43,15 @@ echo "Install mn detection packge"
 cd $SLURM_TMPDIR
 git clone https://github.com/kew6688/MicroNuclei_Detection.git 
 cd MicroNuclei_Detection
+
+# Install requirements and build package
+pip install -r requirements_cc.txt 
 pip install --no-index -e .
+
+# download checkpoints for our model under /MicroNuclei_Detection/checkpoints
+cd checkpoints && \
+./download_ckpts.sh && \
+cd ..
 
 # Download checkpoints
 git clone https://huggingface.co/kew1046/MaskRCNN-resnet50FPN
