@@ -238,7 +238,7 @@ class Application:
           # Create an empty array of the same size as the image to hold the masks
           output_mask = np.zeros((height, width), dtype=np.uint8)
 
-          m = (pred_masks[mask_i] > conf)
+          m = (pred_masks[mask_i] > conf)[:height-cur_y, :width-cur_x]
           output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = 1
 
           rle = mask2rle((output_mask>0).astype(int))
@@ -261,8 +261,8 @@ class Application:
 
     # calculate how many rows and cols to cover the image, 
     # does not contain last row and col
-    for i in range(height // wnd_sz):
-      for j in range(width // wnd_sz):
+    for i in range(height // wnd_sz + 1):
+      for j in range(width // wnd_sz + 1):
 
         # tile image
         wnd_sz = 224
@@ -275,7 +275,7 @@ class Application:
         _, pred_masks,_ = self._post_process(pred, conf,bbox_nms_thresh)
         pred_masks = pred_masks.cpu().type(torch.float32).numpy().squeeze(1)
         for mask_i in range(pred_masks.shape[0]):
-          m = (pred_masks[mask_i] > conf)
+          m = (pred_masks[mask_i] > conf)[:height-cur_y, :width-cur_x]
           output_mask[cur_y: cur_y+wnd_sz, cur_x: cur_x+wnd_sz][m] = mn_id
           mn_id += 1
     return output_mask
