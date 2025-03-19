@@ -2,7 +2,7 @@ import json
 import os 
 from PIL import Image
 from collections import defaultdict
-from main import *
+from mn_classification.src.main import *
 import numpy as np
 
 def crop_ROI(self, model_path=None):
