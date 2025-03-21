@@ -198,7 +198,6 @@ class Application:
     return mn_cnt
   
   def predict_image_info(self, image_path, conf=0.7, footer_skip=False):
-    print(conf)
     im = Image.open(image_path)
 
     output = {"coord":[], "area":[], "bbox":[], "score":[], "mask":[]}

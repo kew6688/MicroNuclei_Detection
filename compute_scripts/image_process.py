@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--src', required=True, help='Source directory containing TIFF images.')
     parser.add_argument('-d', '--dst', required=True, help='Destination json file name for PNG images.')
     parser.add_argument('-mod', '--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
-    parser.add_argument('-c', '--conf', required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
+    parser.add_argument('-c', '--conf', type=float, required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
     parser.add_argument('-o', '--out', required=False, help='Output format is contained mask (full) or only box (short), e.g. -o full/short (full by default)')
     parser.add_argument('-p', '--parent', required=False, help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     target_json = args.dst
     mode = args.mode
     conf = args.conf if "conf" in args else 0.7
-    print(conf)
+    conf = min(max(conf,0.0),1.0)
     par = args.parent if "parent" in args else "edge"
     
     if mode!="DEBUG":
