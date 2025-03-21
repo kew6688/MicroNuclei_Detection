@@ -1,7 +1,23 @@
-import argparse
+'''
+This file is used to convert a folder of json-mini label format 
+from label studio and convert to individual masks
 
+# input is a folder with images folder and some json-mini,
+# output one processed json for all images
+# brush_info is a list of brush
+concate_json(folder_path)
+
+
+# input is the folder with images and json
+# output to a mask folder with all masks where each obj in instance id
+# this can handle mixed brush or instance brush
+def save_mask(json_file_path, mask_path):
+
+'''
+import argparse
 import os
 import json
+
 
 # input is a folder with images folder and some json-mini,
 # output one processed json for all images

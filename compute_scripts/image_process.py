@@ -4,6 +4,7 @@ import numpy as np
 import json
 from PIL import Image
 import time
+import logging
 
 import torch
 import torchvision
@@ -164,6 +165,7 @@ if __name__ == "__main__":
     target_json = args.dst
     mode = args.mode
     conf = args.conf if "conf" in args else 0.7
+    print(conf)
     par = args.parent if "parent" in args else "edge"
     
     if mode!="DEBUG":
