@@ -1,4 +1,23 @@
 import matplotlib.pyplot as plt
+import numpy as np
+
+def calculate_iou(mask1, mask2):
+    # Ensure masks are binary (0 or 1)
+    mask1 = (mask1 > 0).astype(np.uint8)
+    mask2 = (mask2 > 0).astype(np.uint8)
+
+    # Calculate intersection and union
+    intersection = np.logical_and(mask1, mask2).sum()
+    union = np.logical_or(mask1, mask2).sum()
+
+    if union == 0:
+        return 0.0  # Avoid division by zero
+
+    iou = intersection / union
+    # miou = my_iou(mask1, mask2)
+    # if iou != miou:
+    #   raise()
+    return iou
 
 class Evaluator:
   def __init__(self):
@@ -24,6 +43,9 @@ class Evaluator:
         intersection = (pred_masks[i]>0 & gt_masks[j]>0).sum()
         union = (pred_masks[i]>0 | gt_masks[j]>0).sum()
         iou = intersection / union
+        ciou = calculate_iou(pred_masks[i],gt_masks[j])
+        if iou != ciou:
+          raise()
         if (pred_masks[i]>0 & gt_masks[j]>0).sum() > overlap:
           overlap = (pred_masks[i]>0 & gt_masks[j]>0).sum()
           res = True if iou > ap_iou else False
