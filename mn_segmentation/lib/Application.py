@@ -141,8 +141,9 @@ class Application:
 
     pred_boxes = pred["boxes"].long()
     
-    if not conf or not isinstance(conf, float):
+    if not isinstance(conf, float):
       conf = 0.4
+    conf = min(max(0.0, conf), 1.0)
 
     valid = pred["scores"][ind]>conf
     return pred_boxes[ind][valid], pred["masks"][ind][valid], pred["scores"][ind][valid]
