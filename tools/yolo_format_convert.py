@@ -13,10 +13,10 @@ class Converter():
         mask_dir: The folder name of the mask
         dest_dir: The destination folder for the dataset
     """
-    def __init__(self, source_dir, mask_dir, dest_dir):
+    def __init__(self, source_dir, mask_dir, destination_dir):
        self.source_dir = source_dir
        self.mask_dir = mask_dir
-       self.dest_dir = dest_dir
+       self.destination_dir = destination_dir
 
     def format_convert(self):
         val = 300
@@ -27,7 +27,7 @@ class Converter():
         # go through mask folder
         for file in os.listdir(self.mask_dir):
             
-            # save last 100 to validation
+            # save last 300 to validation
             if len(os.listdir(self.mask_dir)) - cnt <= val:
                 save_dir = "val/"
 
@@ -47,12 +47,12 @@ class Converter():
                 polys.append(contours[0].squeeze() / 224)
 
             # copy image to folder
-            source_file = source_dir + "images/" + file.split('.')[0] + ".png"
-            destination_file = destination_dir + "images/" + save_dir + file.split('.')[0] + ".png"
+            source_file = self.source_dir + "images/" + file.split('.')[0] + ".png"
+            destination_file = self.destination_dir + "images/" + save_dir + file.split('.')[0] + ".png"
             shutil.copy(source_file, destination_file)
 
             # write all polygons into txt file
-            with open(os.path.join(destination_dir + "labels/" + save_dir + file.split('.')[0] + ".txt"), 'w') as f:
+            with open(os.path.join(self.destination_dir + "labels/" + save_dir + file.split('.')[0] + ".txt"), 'w') as f:
                 for poly in polys:
                     sl = map(str, poly.flatten())
                     f.writelines("0 " + " ".join(sl) + "\n")
