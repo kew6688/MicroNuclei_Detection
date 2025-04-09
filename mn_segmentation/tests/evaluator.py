@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Evaluator:
-  def __init__(self):
+  def __init__(self, save=False):
       self.pred_list = []
       self.objects = 0
       self.predictions = 0
@@ -13,6 +13,9 @@ class Evaluator:
       self.recall = 0
       self.f1 = 0
       self.map = 0
+
+      self.save = save
+      self.mn_lst = []
 
   def update(self, pred_masks, pred_scores, gt_masks, ap_iou):
 
@@ -38,6 +41,8 @@ class Evaluator:
       else:
         self.FP += 1
       self.pred_list.append((conf, res))
+      if self.save and res:
+        self.mn_lst.append({"size":pred_masks[i].sum(), "iou":iou})
     return t_cnt/(gt_masks.shape[0]-1) if (gt_masks.shape[0]-1) > 0 else 1
 
   def finalize(self):
@@ -76,3 +81,6 @@ class Evaluator:
     plt.show()
 
     print(f"Average Precision: {sum(p)/len(p)}")
+
+  def save(self):
+    return self.mn_lst
