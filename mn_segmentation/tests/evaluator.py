@@ -27,6 +27,7 @@ class Evaluator:
       conf = pred_scores[i]
       res = False
       overlap = 0
+      save_iou = 0
       for j in range(gt_masks.shape[0]):
         if gt_masks[j].sum()>1000 or gt_masks[j].sum()<5: continue
         intersection = np.logical_and(pred_masks[i], gt_masks[j]).sum()
@@ -35,14 +36,18 @@ class Evaluator:
         if intersection > overlap:
           overlap = intersection
           res = True if iou > ap_iou else False
+          save_iou = max(save_iou, iou)
       if res:
         self.TP += 1
         t_cnt += 1
       else:
         self.FP += 1
       self.pred_list.append((conf, res))
+
+      # save the positive predictions' size and iou
       if self.save and res:
-        self.mn_lst.append({"size":pred_masks[i].sum(), "iou":iou})
+        self.mn_lst.append({"size":pred_masks[i].sum(), "iou":save_iou})
+
     return t_cnt/(gt_masks.shape[0]-1) if (gt_masks.shape[0]-1) > 0 else 1
 
   def finalize(self):
