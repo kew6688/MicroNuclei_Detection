@@ -82,5 +82,5 @@ class Evaluator:
 
     print(f"Average Precision: {sum(p)/len(p)}")
 
-  def save(self):
+  def save_szIoU(self):
     return self.mn_lst
