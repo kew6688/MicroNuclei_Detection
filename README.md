@@ -69,13 +69,16 @@ Compute scripts are provided.
 | `--conf`           | `-c`       | No       | 0.7        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
 | `--out`            | `-o`       | No       | "full"        | String        | Output format is contained mask (full) or only box (short), Options: `["full", "short"]`                     |
 | `--parent`         | `-p`       | No       | "edge"        | String        | Parent assign method, use closest center or edge to find nearest parent nuclei, Options: `["center", "edge"]`   |
+| `--apop`         | `-apop`       | No       | True        | Bool        | Turn ON/OFF the apoptosis check function, Options: `["True", "False"]`   |
 
 
 
 ## Project Structure:
 
 ```bash
+src
 ├── checkpoints           # Download pretrained weight here
+├── compute_scripts       # Start point of the program (python and bash script)
 ├── mn_classification     # Micronuclei classification training and inference files
 │   ├── utils             # Utils code (generate dataset, generate tiles contained mn)
 │   ├── data_load.py      # Datasets loader (PyTorch)
@@ -89,6 +92,7 @@ Compute scripts are provided.
 │   ├── train             # Trainer functions to train networks
 │   ├── tests             # Evaluation code
 │   └── run.py            # Run file to start an experiment
+├── tools                 # Functions that used to process files and images
 └── notebooks             # Inference code for experiment statistics and plots
 ```
 

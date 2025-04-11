@@ -1,0 +1,9 @@
+# All the basic needs for this projects
+# please run module load gcc opencv with install other libraries
+
+torch
+numpy
+pillow
+matplotlib
+scikit-learn
+timm

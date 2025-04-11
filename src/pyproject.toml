@@ -1,0 +1,8 @@
+[project]
+name = "mn_segmentation"
+version = "0.1.0"
+description = "micronuclei segmentation app"
+
+[build-system]
+build-backend = "flit_core.buildapi"
+requires = ["flit_core >=3.2,<4"]
