@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from iou import IoUcreaor 
+from iou import IoUcreator 
 
 class Evaluator:
-  def __init__(self, save=False):
+  def __init__(self, save=False, iou_method="Standard"):
       self.pred_list = []
       self.objects = 0
       self.predictions = 0
@@ -17,7 +17,7 @@ class Evaluator:
 
       self.save = save
       self.mn_lst = []
-      self.IoU = IoUcreaor()
+      self.IoU = IoUcreator(iou_method).create()
 
   def update(self, pred_masks, pred_scores, gt_masks, ap_iou=0.5, iou_method="Standard"):
 
@@ -34,8 +34,8 @@ class Evaluator:
         if gt_masks[j].sum()>1000 or gt_masks[j].sum()<5: continue
         intersection = np.logical_and(pred_masks[i], gt_masks[j]).sum()
         union = np.logical_or(pred_masks[i], gt_masks[j]).sum()
-        iou = self.IoU(iou_method)(pred_masks[i], gt_masks[i])
-        
+        iou = self.IoU(pred_masks[i], gt_masks[j])
+
         if intersection > overlap:
           overlap = intersection
           res = True if iou > ap_iou else False
