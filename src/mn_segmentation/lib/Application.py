@@ -100,6 +100,7 @@ class Application:
                device: str = None, 
                mode: str = None,
                resolveApop=True, 
+               apop_cnt=5,
                conf=0.7, 
                footer_skip=False,
                bbox_nms_thresh=0.2
@@ -128,6 +129,7 @@ class Application:
   
     self.mode = mode
     self.resolveApop=resolveApop
+    self.apop_cnt = apop_cnt
     self.conf=conf
     self.footer_skip=footer_skip
     self.bbox_nms_thresh=bbox_nms_thresh

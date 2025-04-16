@@ -77,8 +77,36 @@ def get_nuc_info(image_path, model, nuc_thresh):
       output["mask"].append(mask2rle(ann['segmentation'].astype(int)))
   return output
 
+"""
+Extract the nuclei masks information to match our format and pass to parent assign
+the mask should have shape [n, w, h], n is number of nuclei, w,h is image shape
+"""
+def extract_nuc_info(mask):
+    output = {"coord":[], "area":[], "bbox":[], "score":[], "mask":[]}
+    output["height"] = mask.shape[1]
+    output["width"] = mask.shape[2]
+
+    for i,ann in enumerate(mask):
+        ys, xs = np.where(mask)
+        if len(xs) == 0 or len(ys) == 0:
+            continue
+
+        x_min, x_max = xs.min(), xs.max()
+        y_min, y_max = ys.min(), ys.max()
+        w, h = x_max - x_min + 1, y_max - y_min + 1
+
+        x_center = x_min + w // 2
+        y_center = y_min + h // 2
+
+        output["coord"].append([x_center, y_center])
+        output["area"].append(int(ann.sum()))
+        output["bbox"].append([int(x_min), int(y_min), int(w), int(h)])
+        output["score"].append(1.0)
+        output["mask"].append(mask2rle(ann.astype(int)))
+    return output
+
 # get image_info for nuclei and micronuclei
-def get_image_info(image_path, nuc_model, mn_model, mode="ALL"):
+def get_image_info(image_path, nuc_model, mn_model, mode="ALL",mask=None):
     image_name = image_path.split("/")[-1]
 
     mn_info = get_mn_info(image_path, mn_model) if mode=="ALL" or mode=="MN" else None
@@ -88,7 +116,10 @@ def get_image_info(image_path, nuc_model, mn_model, mode="ALL"):
     else:
        nuc_thresh = 100
 
-    nuc_info = get_nuc_info(image_path, nuc_model, nuc_thresh) if mode=="ALL" or mode=="NUC" else None
+    if mask:
+       nuc_info = extract_nuc_info(mask)
+    else:
+        nuc_info = get_nuc_info(image_path, nuc_model, nuc_thresh) if mode=="ALL" or mode=="NUC" else None
 
     return {
         "image": image_name,
@@ -96,7 +127,7 @@ def get_image_info(image_path, nuc_model, mn_model, mode="ALL"):
         "micronuclei": mn_info
     }
 
-def run(folder, dst, parent, conf, mode="ALL", apop_check=True):
+def run(folder, dst, parent, conf, mode="ALL", apop_check=True, apop_cnt=5, mask=None):
     '''
     Predict all the images and write into data frame
     '''
@@ -105,22 +136,25 @@ def run(folder, dst, parent, conf, mode="ALL", apop_check=True):
       conf = 0.7
 
     # mn seg model
-    app = Application(weight="./MicroNuclei_Detection/checkpoints/maskrcnn-resnet50fpn.pt",resolveApop=apop_check,conf=conf)
+    app = Application(weight="./MicroNuclei_Detection/checkpoints/maskrcnn-resnet50fpn.pt",resolveApop=apop_check,conf=conf,apop_cnt=apop_cnt)
 
-    # nuc seg model
-    checkpoint = "./sam2/checkpoints/sam2.1_hiera_large.pt"
-    model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
+    if not mask:
+        # nuc seg model
+        checkpoint = "./sam2/checkpoints/sam2.1_hiera_large.pt"
+        model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 
-    sam2 = build_sam2(model_cfg, checkpoint, device=device, apply_postprocessing=False)
-    mask_generator = SAM2AutomaticMaskGenerator(
-        model=sam2,
-        points_per_side=64,
-        points_per_batch=128,
-        pred_iou_thresh=0.7,
-        stability_score_thresh=0.92,
-        stability_score_offset=0.7,
-        min_mask_region_area=25
-    )
+        sam2 = build_sam2(model_cfg, checkpoint, device=device, apply_postprocessing=False)
+        mask_generator = SAM2AutomaticMaskGenerator(
+            model=sam2,
+            points_per_side=64,
+            points_per_batch=128,
+            pred_iou_thresh=0.7,
+            stability_score_thresh=0.92,
+            stability_score_offset=0.7,
+            min_mask_region_area=25
+        )
+    else:
+       mask_generator=None
 
     pred = []
     image_paths = os.listdir(folder)
@@ -135,7 +169,7 @@ def run(folder, dst, parent, conf, mode="ALL", apop_check=True):
         image_path = os.path.join(folder,image_name)
 
         start = time.time()
-        info = get_image_info(image_path, mask_generator, app, mode=mode)
+        info = get_image_info(image_path, mask_generator, app, mode=mode,mask=mask)
         t += time.time() - start
         cnt += 1
 
@@ -159,7 +193,9 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--conf', type=float, required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
     parser.add_argument('-o', '--out', required=False, help='Output format is contained mask (full) or only box (short), e.g. -o full/short (full by default)')
     parser.add_argument('-p', '--parent', required=False, help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')
-    parser.add_argument('-apop', '--apop', required=True, help='Turn ON/OFF the apoptosis check function')
+    parser.add_argument('-apop', '--apop', required=False, help='Turn ON/OFF the apoptosis check function')
+    parser.add_argument('-apop_cnt', '--apop_cnt', required=False, help='The threshold to consider MNs to be the apoptosis')
+    parser.add_argument('-mask', '--mask', required=False, help='The input mask for nuclei segmentation')
 
     args = parser.parse_args()
     source_folder = args.src
@@ -169,7 +205,9 @@ if __name__ == "__main__":
     conf = min(max(conf,0.0),1.0)
     par = args.parent if "parent" in args else "edge"
     apop_check = args.apop
+    apop_cnt = args.apop_cnt
+    mask = args.mask
     
     if mode!="DEBUG":
-        run(folder=source_folder, dst=target_json, mode=mode, conf=conf, parent=par, apop_check=apop_check)
+        run(folder=source_folder, dst=target_json, mode=mode, conf=conf, parent=par, apop_check=apop_check, apop_cnt=apop_cnt,mask=mask)
 
