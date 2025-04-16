@@ -32,3 +32,4 @@ class ScaleIoU(IoU):
         p = 1.0 - self.gamma * math.exp(- np.sqrt(avg_sz) / self.kappa)
         
         return iou**p
+    
