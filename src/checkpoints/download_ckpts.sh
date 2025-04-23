@@ -19,7 +19,7 @@ fi
 # Define the URLs for model checkpoints
 MaskRCNN_URL="https://huggingface.co/kew1046/MaskRCNN-resnet50FPN/resolve/main/maskrcnn-resnet50fpn.pt"
 
-# SAM 2.1 checkpoints
+# checkpoints
 echo "Downloading maskrcnn-resnet50fpn.pt checkpoint..."
 $CMD $MaskRCNN_URL || { echo "Failed to download checkpoint from $MaskRCNN_URL"; exit 1; }
 

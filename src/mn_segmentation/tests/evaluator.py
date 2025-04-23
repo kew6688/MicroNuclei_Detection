@@ -6,9 +6,24 @@ from torchvision.transforms.functional import pil_to_tensor
 from tqdm import tqdm
 import argparse
 import time
-
 from iou import IoUcreator 
 
+def get_mask_center(mask):
+    """
+    Computes the center (centroid) of a binary mask.
+
+    Parameters:
+        mask (np.ndarray): 2D numpy array of the binary mask (bool or 0/1).
+
+    Returns:
+        (float, float): (row_center, col_center)
+    """
+    indices = np.argwhere(mask)  # Get coordinates of non-zero pixels
+    if indices.size == 0:
+        return None  # or raise ValueError("Mask is empty.")
+
+    center = indices.mean(axis=0)  # Mean along rows gives centroid
+    return tuple(center)
 
 class Evaluator:
   def __init__(self, save=False, iou_method="Standard"):
