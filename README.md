@@ -69,6 +69,9 @@ Compute scripts are provided.
 | `--conf`           | `-c`       | No       | 0.7        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
 | `--out`            | `-o`       | No       | "full"        | String        | Output format is contained mask (full) or only box (short), Options: `["full", "short"]`                     |
 | `--parent`         | `-p`       | No       | "edge"        | String        | Parent assign method, use closest center or edge to find nearest parent nuclei, Options: `["center", "edge"]`   |
+| `--apop`         | `-apop`       | No       | True        | Bool        | Turn ON/OFF the apoptosis check function   |
+| `--apop_cnt`         | `-apop_cnt`       | No       | 5        | Integer        | The threshold to consider MNs cluster to be the apoptosis  |
+| `--mask`         | `-mask`       | No       | N/A       | Numpy Array        | The input mask for nuclei segmentation, the mask should have shape [n, w, h], n is number of nuclei, w,h is image shape |
 
 
 
@@ -99,7 +102,7 @@ https://stackoverflow.com/questions/714063/importing-modules-from-parent-folder
 build project from root dir. Import by prepending MN.
 
 ## Dataset 
-The following is the overview of the dataset. The dataset can be download here, by downloading the dataset you agree that you have read and accept licence.
+The following is the overview of the dataset. The dataset can be download [here](https://zenodo.org/records/15312291), by downloading the dataset you agree that you have read and accept licence.
 
 We save masks per image in a json file. It can be loaded as a dictionary in python in the below format:
 ```python
