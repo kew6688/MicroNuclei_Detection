@@ -5,6 +5,9 @@
 
 ## Installation
 This tool need to be installed before use. All the requirements are in `requirements.txt` (for compute canada, use `requirements_ComputeCan.txt`). Please install pytorch and torchvision dependencies. 
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+```
 
 You can install this tool on a GPU machine using:
 
