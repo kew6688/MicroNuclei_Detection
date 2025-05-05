@@ -47,7 +47,7 @@ def rle_to_mask(rle: List[int], height: int, width: int) -> np.array:
     num = rle_input.read(32)
     word_size = rle_input.read(5) + 1
     rle_sizes = [rle_input.read(4) + 1 for _ in range(4)]
-    print('RLE params:', num, 'values,', word_size, 'word_size,', rle_sizes, 'rle_sizes')
+    # print('RLE params:', num, 'values,', word_size, 'word_size,', rle_sizes, 'rle_sizes')
 
     i = 0
     out = np.zeros(num, dtype=np.uint8)
