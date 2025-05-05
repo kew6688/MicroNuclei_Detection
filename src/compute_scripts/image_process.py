@@ -136,11 +136,11 @@ def run(folder, dst, parent, conf, mode="ALL", apop_check=True, apop_cnt=5, mask
       conf = 0.7
 
     # mn seg model
-    app = Application(weight="./MicroNuclei_Detection/checkpoints/maskrcnn-resnet50fpn.pt",resolveApop=apop_check,conf=conf,apop_cnt=apop_cnt)
+    app = Application(weight="./MicroNuclei_Detection/src/checkpoints/maskrcnn-resnet50fpn.pt",resolveApop=apop_check,conf=conf,apop_cnt=apop_cnt)
 
     if not mask:
         # nuc seg model
-        checkpoint = "./sam2/checkpoints/sam2.1_hiera_large.pt"
+        checkpoint = "./MicroNuclei_Detection/external/sam2/checkpoints/sam2.1_hiera_large.pt"
         model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 
         sam2 = build_sam2(model_cfg, checkpoint, device=device, apply_postprocessing=False)
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process images for detections.')
     parser.add_argument('-s', '--src', required=True, help='Source directory containing TIFF images.')
     parser.add_argument('-d', '--dst', required=True, help='Destination json file name for PNG images.')
-    parser.add_argument('-mod', '--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
+    parser.add_argument('-mod', '--mode', required=False,  default="ALL", help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
     parser.add_argument('-c', '--conf', required=False, type=float, default=0.7, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
     parser.add_argument('-o', '--out', required=False, type=str, default="full", help='Output format is contained mask (full) or only box (short), e.g. -o full/short (full by default)')
     parser.add_argument('-p', '--parent', required=False, type=str, default="edge", help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')

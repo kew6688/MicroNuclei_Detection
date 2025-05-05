@@ -4,30 +4,24 @@
 
 
 ## Installation
-This tool need to be installed before use. All the requirements are in `requirements.txt` (for compute canada, use `requirements.txt`). Please install pytorch and torchvision dependencies. 
+This tool need to be installed before use. All the requirements are in `requirements.txt` (for compute canada, use `requirements_ComputeCan.txt`). Please install pytorch and torchvision dependencies. 
 
 You can install this tool on a GPU machine using:
 
 ```
-git clone https://github.com/kew6688/MicroNuclei_Detection.git && cd MicroNuclei_Detection
+git clone https://github.com/kew6688/MicroNuclei_Detection.git && cd MicroNuclei_Detection/src
+pip install -r requirements.txt
 pip install -e .
 ```
 
-In order to fully utilize the pipeline, we need to integrated with SAM2 for nuclei segmentation. The installation can be found here:
-```
-git clone https://github.com/facebookresearch/sam2.git
-cd sam2
-pip install -e .
-```
+In order to fully utilize the pipeline, we integrated with SAM2 for nuclei segmentation. 
 
 ## Model Checkpoints
 
 First, we need to download a model checkpoint. All the model checkpoints can be downloaded by running:
 
 ```
-cd checkpoints && \
-./download_ckpts.sh && \
-cd ..
+cd MicroNuclei_Detection/src/checkpoints && ./download_ckpts.sh
 ```
 
 The pre-trained models can be download from huggingface:
@@ -35,6 +29,13 @@ The pre-trained models can be download from huggingface:
 - https://huggingface.co/kew1046/MaskRCNN-swinFPN
   
 After downloading the model, the usage of the end-to-end pipeline is described below.
+
+download SAM2 checkpoint by running:
+```
+cd MicroNuclei_Detection/external/sam2/checkpoints && \
+./download_ckpts.sh && \
+cd ..
+```
 
 ## Usage:
 Automated pipeline to process images. 
