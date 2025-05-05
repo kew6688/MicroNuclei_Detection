@@ -58,7 +58,7 @@ Compute scripts are provided.
 #       the final json file name
 #       the process mode (ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei)
 # Example:
-#       >>> python image_process.py --src /home/test --dst test.json --mode ALL 
+#       >>> python MicroNuclei_Detection/src/compute_scripts/image_process.py --src /home/test --dst test.json 
 ```
 **Input**: The model expects 8-bit RGB images without any text labels. The training data is 20x magnificent.
 
