@@ -26,7 +26,7 @@ echo "Install SAM2"
 
 # install SAM2
 cd $SLURM_TMPDIR
-git clone https://github.com/facebookresearch/sam2.git
+# git clone https://github.com/facebookresearch/sam2.git
 cd sam2
 pip install -e .
 
@@ -42,7 +42,7 @@ echo "Install mn detection packge"
 # Install package
 cd $SLURM_TMPDIR
 git clone https://github.com/kew6688/MicroNuclei_Detection.git 
-cd MicroNuclei_Detection
+cd MicroNuclei_Detection/src
 
 # Install requirements and build package
 pip install -r requirements_cc.txt 

@@ -190,20 +190,20 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--src', required=True, help='Source directory containing TIFF images.')
     parser.add_argument('-d', '--dst', required=True, help='Destination json file name for PNG images.')
     parser.add_argument('-mod', '--mode', required=True, help='process mode, MN to get micronuclei json, NUC to get nuclei json, ALL to get all')
-    parser.add_argument('-c', '--conf', type=float, required=False, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
-    parser.add_argument('-o', '--out', required=False, help='Output format is contained mask (full) or only box (short), e.g. -o full/short (full by default)')
-    parser.add_argument('-p', '--parent', required=False, help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')
-    parser.add_argument('-apop', '--apop', required=False, help='Turn ON/OFF the apoptosis check function')
-    parser.add_argument('-apop_cnt', '--apop_cnt', required=False, help='The threshold to consider MNs to be the apoptosis')
+    parser.add_argument('-c', '--conf', required=False, type=float, default=0.7, help='confidence threshold for micronuclei detection, e.g. --conf 0.7 (0.7 by default)')
+    parser.add_argument('-o', '--out', required=False, type=str, default="full", help='Output format is contained mask (full) or only box (short), e.g. -o full/short (full by default)')
+    parser.add_argument('-p', '--parent', required=False, type=str, default="edge", help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')
+    parser.add_argument('-apop', '--apop', required=False, type=bool, default=True, help='Turn ON/OFF the apoptosis check function')
+    parser.add_argument('-apop_cnt', '--apop_cnt', required=False, type=float, default=5, help='The threshold to consider MNs to be the apoptosis')
     parser.add_argument('-mask', '--mask', required=False, help='The input mask for nuclei segmentation')
 
     args = parser.parse_args()
     source_folder = args.src
     target_json = args.dst
     mode = args.mode
-    conf = args.conf if "conf" in args else 0.7
+    conf = args.conf
     conf = min(max(conf,0.0),1.0)
-    par = args.parent if "parent" in args else "edge"
+    par = args.parent
     apop_check = args.apop
     apop_cnt = args.apop_cnt
     mask = args.mask

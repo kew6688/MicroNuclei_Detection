@@ -7,3 +7,4 @@ matplotlib
 scikit-learn
 timm
 opencv-python
+-e ../external/sam2

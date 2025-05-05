@@ -1,3 +1,6 @@
+# All the basic needs for this projects
+# please run module load gcc opencv with install other libraries
+
 antlr4_python3_runtime==4.9.3+computecanada
 certifi==2024.8.30+computecanada
 charset_normalizer==3.4.0+computecanada
@@ -41,3 +44,5 @@ torchvision==0.20.1+computecanada
 tqdm==4.67.1+computecanada
 typing_extensions==4.12.2+computecanada
 urllib3==2.2.3+computecanada
+
+-e ../external/sam2
