@@ -1,10 +1,49 @@
 # All the basic needs for this projects
 
-torch
-numpy
-pillow
-matplotlib
-scikit-learn
-timm
-opencv-python
--e ../external/sam2
+antlr4-python3-runtime==4.9.3
+certifi==2025.4.26
+charset-normalizer==3.4.2
+colorama==0.4.6
+contourpy==1.3.2
+cycler==0.12.1
+filelock==3.18.0
+fonttools==4.57.0
+fsspec==2025.3.2
+huggingface-hub==0.30.2
+hydra-core==1.3.2
+idna==3.10
+iopath==0.1.10
+Jinja2==3.1.6
+joblib==1.5.0
+kiwisolver==1.4.8
+MarkupSafe==3.0.2
+matplotlib==3.10.1
+-e git+https://github.com/kew6688/MicroNuclei_Detection.git@19fb0c98db6aaa84eac8be595bb80fde2ac4c309#egg=mn_segmentation&subdirectory=src
+mpmath==1.3.0
+networkx==3.4.2
+numpy==2.2.5
+omegaconf==2.3.0
+opencv-python==4.11.0.86
+packaging==25.0
+pillow==11.2.1
+portalocker==3.1.1
+pyparsing==3.2.3
+python-dateutil==2.9.0.post0
+pywin32==310
+PyYAML==6.0.2
+requests==2.32.3
+safetensors==0.5.3
+-e git+https://github.com/kew6688/MicroNuclei_Detection.git@19fb0c98db6aaa84eac8be595bb80fde2ac4c309#egg=SAM_2&subdirectory=external\sam2
+scikit-learn==1.6.1
+scipy==1.15.2
+setuptools==80.3.1
+six==1.17.0
+sympy==1.14.0
+threadpoolctl==3.6.0
+timm==1.0.15
+torch==2.7.0+cu126
+torchaudio==2.7.0+cu126
+torchvision==0.22.0+cu126
+tqdm==4.67.1
+typing_extensions==4.13.2
+urllib3==2.4.0
