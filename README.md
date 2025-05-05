@@ -41,24 +41,20 @@ cd ..
 ```
 
 ## Usage:
-Automated pipeline to process images. 
- 
- This includes 
+### **Use as a library.** 
+This includes:
  - predict counts of micronuclei
  - predict masks
  - output a info dictionary with box, center location and size
 
 Please refer to the examples in the [tutorial.ipynb](./notebooks/tutorial.ipynb) (open in [colab](https://colab.research.google.com/github/kew6688/MicroNuclei_Detection/blob/main/notebooks/tutorial.ipynb))
 
-Compute scripts are provided.
+### **Run the main python script.** 
+Automated pipeline to process images. 
+
 ```
-# Run the main python script.
-# The arguments should be
-#       the folder for the input images (png, tif)
-#       the final json file name
-#       the process mode (ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei)
-# Example:
-#       >>> python MicroNuclei_Detection/src/compute_scripts/image_process.py --src /home/test --dst test.json 
+Example Usage:
+      >>> python MicroNuclei_Detection/src/compute_scripts/image_process.py --src /home/test --dst test.json 
 ```
 **Input**: The model expects 8-bit RGB images without any text labels. The training data is 20x magnificent.
 
@@ -69,7 +65,7 @@ Compute scripts are provided.
 |--------------------|------------|----------|------------|--------------|---------------------------------------------------------------------------------------------------|
 | `--src`            | `-s`       | Yes      | N/A        | String       | Pathway to image.                                                                                 |
 | `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
-| `--mode`           | `-mod`     | Yes      | N/A        | String       | mode for output. Options: `["MN", "NUC", "ALL"]`                                                  |
+| `--mode`           | `-mod`     | No      | N/A        | String       | mode for output. ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei. Options: `["MN", "NUC", "ALL"]`                                                  |
 | `--conf`           | `-c`       | No       | 0.7        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
 | `--out`            | `-o`       | No       | "full"        | String        | Output format is contained mask (full) or only box (short), Options: `["full", "short"]`                     |
 | `--parent`         | `-p`       | No       | "edge"        | String        | Parent assign method, use closest center or edge to find nearest parent nuclei, Options: `["center", "edge"]`   |
