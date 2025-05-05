@@ -54,9 +54,9 @@ Automated pipeline to process images.
 
 ```
 Example Usage:
-      >>> python MicroNuclei_Detection/src/compute_scripts/image_process.py --src /home/test --dst test.json 
+      >>> python MicroNuclei_Detection/src/compute_scripts/image_process.py --src ./sample_images --dst test.json 
 ```
-**Input**: The model expects 8-bit RGB images without any text labels. The training data is 20x magnificent.
+**Input**: The model expects 8-bit RGB images (tif, png, jpg) without any text labels. The training data is 20x magnificent.
 
 **Output**: can be found in the [output](#output-format) section
 
