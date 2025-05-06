@@ -117,7 +117,10 @@ def get_image_info(image_path, nuc_model, mn_model, mode="ALL",mask=None):
        nuc_thresh = 100
 
     if mask:
-       nuc_info = extract_nuc_info(mask)
+       mask_name = image_name[:-4]+ ".npy"
+       mask_path = os.path.join(mask, mask_name)
+       mask_arr = np.load(mask_path)
+       nuc_info = extract_nuc_info(mask_arr)
     else:
         nuc_info = get_nuc_info(image_path, nuc_model, nuc_thresh) if mode=="ALL" or mode=="NUC" else None
 
@@ -185,7 +188,7 @@ def run(folder, dst, parent, conf, mode="ALL", apop_check=True, apop_cnt=5, mask
         json.dump(pred, outfile)
 
 if __name__ == "__main__":
-    # TODO: add resolution
+    
     parser = argparse.ArgumentParser(description='Process images for detections.')
     parser.add_argument('-s', '--src', required=True, help='Source directory containing TIFF images.')
     parser.add_argument('-d', '--dst', required=True, help='Destination json file name for PNG images.')
@@ -195,7 +198,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--parent', required=False, type=str, default="edge", help='Parent assign method, use closest center or edge to find nearest parent nuclei (edge by default)')
     parser.add_argument('-apop', '--apop', required=False, type=bool, default=True, help='Turn ON/OFF the apoptosis check function')
     parser.add_argument('-apop_cnt', '--apop_cnt', required=False, type=float, default=5, help='The threshold to consider MNs to be the apoptosis')
-    parser.add_argument('-mask', '--mask', required=False, help='The input mask for nuclei segmentation')
+    parser.add_argument('-mask', '--mask', required=False, help='The location of input masks for nuclei segmentation')
 
     args = parser.parse_args()
     source_folder = args.src
