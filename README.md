@@ -28,8 +28,9 @@ cd MicroNuclei_Detection/src/checkpoints && ./download_ckpts.sh
 ```
 
 The pre-trained models can be download from huggingface:
-- https://huggingface.co/kew1046/MaskRCNN-resnet50FPN
-- https://huggingface.co/kew1046/MaskRCNN-swinFPN
+- [resnet50](https://huggingface.co/ccglab22/MaskRCNN-resnet50FPN)
+- [swin](https://huggingface.co/ccglab22/MaskRCNN-swinFPN)
+- [resnet101](https://huggingface.co/ccglab22/MaskRCNN-resnet101)
   
 After downloading the model, the usage of the end-to-end pipeline is described below.
 
