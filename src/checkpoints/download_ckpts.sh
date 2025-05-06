@@ -17,7 +17,7 @@ else
 fi
 
 # Define the URLs for model checkpoints
-MaskRCNN_URL="https://huggingface.co/kew1046/MaskRCNN-resnet50FPN/resolve/main/maskrcnn-resnet50fpn.pt"
+MaskRCNN_URL="https://huggingface.co/ccglab22/MaskRCNN-resnet50FPN/resolve/main/maskrcnn-resnet50fpn.pt"
 
 # checkpoints
 echo "Downloading maskrcnn-resnet50fpn.pt checkpoint..."
