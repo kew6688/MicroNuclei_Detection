@@ -65,13 +65,12 @@ Example Usage:
 |--------------------|------------|----------|------------|--------------|---------------------------------------------------------------------------------------------------|
 | `--src`            | `-s`       | Yes      | N/A        | String       | Pathway to image.                                                                                 |
 | `--dst`            | `-d`       | Yes      | N/A        | String       | Pathway to output.                                                                                |
-| `--mode`           | `-mod`     | No      | N/A        | String       | mode for output. ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei. Options: `["MN", "NUC", "ALL"]`                                                  |
+| `--mode`           | `-mod`     | No      | "ALL"        | String       | mode for output. ALL for both nuc and mn, NUC for only nuclei, MN for only micronuclei. Options: `["MN", "NUC", "ALL"]`                                                  |
 | `--conf`           | `-c`       | No       | 0.7        | Float        | confidence threshold for micronuclei detection, e.g. --conf 0.4                                   |
-| `--out`            | `-o`       | No       | "full"        | String        | Output format is contained mask (full) or only box (short), Options: `["full", "short"]`                     |
 | `--parent`         | `-p`       | No       | "edge"        | String        | Parent assign method, use closest center or edge to find nearest parent nuclei, Options: `["center", "edge"]`   |
 | `--apop`         | `-apop`       | No       | True        | Bool        | Turn ON/OFF the apoptosis check function   |
 | `--apop_cnt`         | `-apop_cnt`       | No       | 5        | Integer        | The threshold to consider MNs cluster to be the apoptosis  |
-| `--mask`         | `-mask`       | No       | N/A       | Numpy Array        | The input mask for nuclei segmentation, the mask should have shape [n, w, h], n is number of nuclei, w,h is image shape |
+| `--mask`         | `-mask`       | No       | N/A       | String       | The folder location of input mask for nuclei segmentation, the masks in the folder should have the same name matched to the images. The shape expected is [n, w, h], n is number of nuclei, w,h is image shape |
 
 
 
