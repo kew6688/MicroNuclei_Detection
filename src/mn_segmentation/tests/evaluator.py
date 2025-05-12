@@ -6,7 +6,7 @@ from torchvision.transforms.functional import pil_to_tensor
 from tqdm import tqdm
 import argparse
 import time
-from iou import IoUcreator 
+from mn_segmentation.tests.iou import IoUcreator 
 
 def get_mask_center(mask):
     """
