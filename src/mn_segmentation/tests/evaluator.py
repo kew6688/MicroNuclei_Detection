@@ -18,11 +18,11 @@ def get_mask_center(mask):
     Returns:
         (float, float): (row_center, col_center)
     """
-    indices = np.argwhere(mask)  # Get coordinates of non-zero pixels
+    indices = np.argwhere(mask).float()  # Get coordinates of non-zero pixels
     if indices.size == 0:
         return None  # or raise ValueError("Mask is empty.")
 
-    center = indices.mean(axis=0)  # Mean along rows gives centroid
+    center = indices.astype(float).mean(axis=0)  # Mean along rows gives centroid
     return tuple(center)
 
 class Evaluator:
