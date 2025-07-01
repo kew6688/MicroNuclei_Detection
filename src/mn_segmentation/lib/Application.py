@@ -238,6 +238,13 @@ class Application:
         pred = self._predict(image)
 
         pred_boxes, pred_masks, pred_scores= self._post_process(pred, self.conf)
+
+        # add apop check feature
+        if self.resolveApop:
+          # create a new list from non apop index list 
+          index = cluster.resolveApopIndex(pred_boxes, thresh=self.apop_cnt)
+          pred_boxes, pred_masks, pred_scores = pred_boxes[index], pred_masks[index], pred_scores[index]
+
         pred_boxes[:, [0,2]] += cur_x
         pred_boxes[:, [1,3]] += cur_y
         area = pred_masks.sum(1).sum(1).sum(1)

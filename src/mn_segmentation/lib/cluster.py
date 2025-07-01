@@ -3,6 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
+from collections import Counter
 
 def boxToCenters(boxes):
   """
@@ -13,6 +14,9 @@ def boxToCenters(boxes):
   return centers.int().cpu().numpy()
 
 def resolveApop(boxes, thresh=5, eps=20, min_samples=1):
+    """
+    resolve the apop part and return the count of the good predictions
+    """
     centers = boxToCenters(boxes)
     if len(centers) <= 0:
       return 0
@@ -33,6 +37,30 @@ def resolveApop(boxes, thresh=5, eps=20, min_samples=1):
         if n_in_cluster <= thresh: 
             cnt += n_in_cluster
     return cnt
+
+def resolveApopIndex(boxes, thresh=5, eps=20, min_samples=1):
+    """
+    resolve the apop part and return the index of the good predictions (filter out the apop)
+    """
+    centers = boxToCenters(boxes)
+    if len(centers) <= 0:
+      return 0
+      
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(centers)
+    labels = db.labels_
+
+    # Number of clusters in labels, ignoring noise if present.
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+    n_noise_ = list(labels).count(-1)
+
+    # number of mn without apop cluster
+    index = []
+    cnt = Counter(labels)
+    for i, label in enumerate(labels):
+      if label == -1 or cnt[label] <= thresh:
+        index.append(i)
+    return index
+
 
 def testApop(boxes,eps=20, min_samples=1):
     X = boxToCenters(boxes)
