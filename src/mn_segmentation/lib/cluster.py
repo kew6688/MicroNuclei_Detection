@@ -19,7 +19,7 @@ def resolveApop(boxes, thresh=5, eps=20, min_samples=1):
     """
     centers = boxToCenters(boxes)
     if len(centers) <= 0:
-      return 0
+      return []
       
     db = DBSCAN(eps=eps, min_samples=min_samples).fit(centers)
     labels = db.labels_
