@@ -1,9 +1,34 @@
-# Micronuclei detection
-
-![sample](./sample_images/example1.png)
 
 
-## Installation
+<div align="center">
+<img src="./sample_images/example1.png" alt="sample" width="600" height="500">
+</div>
+
+## 🏠 Introduction
+
+The **MicroNuclei Detection** repository provides a comprehensive end-to-end pipeline for the automatic detection and quantification of micronuclei and their parent nuclei in microscopy images. Leveraging modern deep learning architectures combined with robust segmentation and classification workflows, this tool is designed to help researchers and practitioners in biomedical imaging quickly and accurately identify micronuclei, a key biomarker for cellular damage and genomic instability.
+
+### Key Features
+
+- A seamless integration of segmentation (for parent nuclei) and detection/classification (for micronuclei) modules — enabling you to feed in RGB images and receive annotated outputs with details such as bounding boxes, center coordinates, mask areas, and classification scores.
+
+- Support for multiple modern back-ends and pretrained checkpoints (e.g., ResNet50, Swin, ResNet101) to enable rapid setup and experimentation. 
+GitHub
+
+- A flexible command-line tool interface, enabling the processing of large image sets via a simple python image_process.py --src ... --dst ... invocation, with configurable modes (nuclei only, micronuclei only, or both), confidence thresholds, and parent-assignment strategies. 
+GitHub
+
+- Support for segmentation-based datasets (via JSON annotations, RLE encoding, bounding boxes, and masks) and output formats clearly defined for downstream analytics and data pipelines. 
+GitHub
+
+- Designed with modular code structure including data-loading, training, inference (for both segmentation and classification), and optional notebooks for statistical evaluation and plotting.
+
+## 🔥 News
+
+- [2025/09] [MicroNucML report]( https://www.biorxiv.org/content/10.1101/2025.09.20.677550v1) is released.
+- [2025/06] MicroNuclei Detection v1.0 released.
+  
+## 📦 Installation
 This tool need to be installed before use. All the requirements are in `requirements.txt` (for compute canada, use `requirements_ComputeCan.txt`). Please install pytorch and torchvision dependencies. 
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
@@ -19,7 +44,7 @@ pip install -e .
 
 In order to fully utilize the pipeline, we integrated with SAM2 for nuclei segmentation. 
 
-## Model Checkpoints
+## 📚 Model Checkpoints
 
 First, we need to download a model checkpoint. All the model checkpoints can be downloaded by running:
 
@@ -41,7 +66,7 @@ cd MicroNuclei_Detection/external/sam2/checkpoints && \
 cd ..
 ```
 
-## Usage:
+## 🧩 Usage:
 ### **Use as a library.** 
 This includes:
  - predict counts of micronuclei
@@ -169,3 +194,4 @@ from mn_segmentation.lib.image_encode import mask2rle, rle_to_mask
 rle = mask2rle(mask)
 mask = rle_to_mask(rle,original_height,original_width)
 ```
+
