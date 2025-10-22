@@ -13,13 +13,10 @@ The **MicroNuclei Detection** repository provides a comprehensive end-to-end pip
 - A seamless integration of segmentation (for parent nuclei) and detection/classification (for micronuclei) modules — enabling you to feed in RGB images and receive annotated outputs with details such as bounding boxes, center coordinates, mask areas, and classification scores.
 
 - Support for multiple modern back-ends and pretrained checkpoints (e.g., ResNet50, Swin, ResNet101) to enable rapid setup and experimentation. 
-GitHub
 
-- A flexible command-line tool interface, enabling the processing of large image sets via a simple python image_process.py --src ... --dst ... invocation, with configurable modes (nuclei only, micronuclei only, or both), confidence thresholds, and parent-assignment strategies. 
-GitHub
+- A flexible command-line tool interface, enabling the processing of large image sets via a simple `python image_process.py --src ... --dst ...` invocation, with configurable modes (nuclei only, micronuclei only, or both), confidence thresholds, and parent-assignment strategies. 
 
 - Support for segmentation-based datasets (via JSON annotations, RLE encoding, bounding boxes, and masks) and output formats clearly defined for downstream analytics and data pipelines. 
-GitHub
 
 - Designed with modular code structure including data-loading, training, inference (for both segmentation and classification), and optional notebooks for statistical evaluation and plotting.
 
@@ -194,4 +191,5 @@ from mn_segmentation.lib.image_encode import mask2rle, rle_to_mask
 rle = mask2rle(mask)
 mask = rle_to_mask(rle,original_height,original_width)
 ```
+
 
