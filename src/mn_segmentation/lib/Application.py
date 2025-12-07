@@ -240,7 +240,7 @@ class Application:
         pred_boxes, pred_masks, pred_scores= self._post_process(pred, self.conf)
 
         # add apop check feature
-        if self.resolveApop:
+        if self.resolveApop and len(pred_boxes) > 0:
           # create a new list from non apop index list 
           index = cluster.resolveApopIndex(pred_boxes, thresh=self.apop_cnt)
           pred_boxes, pred_masks, pred_scores = pred_boxes[index], pred_masks[index], pred_scores[index]
